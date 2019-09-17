@@ -39,4 +39,6 @@ pub trait Intersectable {
     /// Check whether the given ray intersects with this entity in 3 dimentional space, and return
     /// the distance between the intersection and ray origin.
     fn intersect(&self, ray: &Ray) -> Option<f64>;
+
+    fn surface_normal(&self, point: &Point3) -> Vector3;
 }

@@ -1,3 +1,5 @@
+use std::ops::{Add, Mul};
+
 use image::Rgba;
 
 /// The maximum value a color can have.

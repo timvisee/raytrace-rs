@@ -14,6 +14,10 @@ impl Entity {
             Entity::Plane(ref p) => &p.color,
         }
     }
+
+    pub fn albedo(&self) -> f32 {
+        0.25
+    }
 }
 
 impl Intersectable for Entity {
@@ -21,6 +25,13 @@ impl Intersectable for Entity {
         match *self {
             Entity::Sphere(ref s) => s.intersect(ray),
             Entity::Plane(ref p) => p.intersect(ray),
+        }
+    }
+
+    fn surface_normal(&self, point: &Point3) -> Vector3 {
+        match *self {
+            Entity::Sphere(ref s) => s.surface_normal(point),
+            Entity::Plane(ref p) => p.surface_normal(point),
         }
     }
 }
@@ -44,6 +55,10 @@ impl Intersectable for Plane {
             }
         }
         None
+    }
+
+    fn surface_normal(&self, _: &Point3) -> Vector3 {
+        -self.normal
     }
 }
 
@@ -83,5 +98,9 @@ impl Intersectable for Sphere {
 
         let distance = if t0 < t1 { t0 } else { t1 };
         Some(distance)
+    }
+
+    fn surface_normal(&self, point: &Point3) -> Vector3 {
+        (*point - self.center).normalize()
     }
 }

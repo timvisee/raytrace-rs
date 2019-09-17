@@ -3,6 +3,7 @@ use rayon::prelude::*;
 
 mod color;
 mod geometric;
+mod light;
 mod math;
 mod scene;
 
@@ -34,7 +35,22 @@ pub fn render(scene: &Scene) -> DynamicImage {
             let ray = Ray::new_prime(x, y, scene);
 
             if let Some(intersection) = scene.trace(&ray) {
-                intersection.entity.color().to_rgba()
+                // Use first light for now
+                let light = &scene.lights[0];
+
+                let hit_point = ray.origin + (ray.direction * intersection.distance);
+                let surface_normal = intersection.entity.surface_normal(&hit_point);
+                let direction_to_light = -light.direction;
+
+                let light_power =
+                    (surface_normal.dot(&direction_to_light) as f32) * light.intensity;
+
+                let light_reflected = intersection.entity.albedo() / std::f32::consts::PI;
+
+                let color =
+                    *intersection.entity.color() * light.color * light_power * light_reflected;
+
+                color.to_rgba()
             } else {
                 background
             }

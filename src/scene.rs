@@ -1,5 +1,6 @@
 use crate::color::Color;
 use crate::geometric::{Entity, Plane, Sphere};
+use crate::light::Light;
 use crate::math::{Intersectable, Intersection, Point3, Ray, Vector3};
 
 /// Defines a scene to render.
@@ -8,6 +9,7 @@ pub struct Scene {
     pub height: u32,
     pub fov: f64,
     pub entities: Vec<Entity>,
+    pub lights: Vec<Light>,
 }
 
 impl Scene {
@@ -48,6 +50,11 @@ impl Default for Scene {
                     color: Color::new(0.2, 0.2, 0.2),
                 }),
             ],
+            lights: vec![Light {
+                direction: Vector3::new(0.0, 0.0, -1.0),
+                color: Color::new(1.0, 1.0, 1.0),
+                intensity: 3000.0,
+            }],
         }
     }
 }
