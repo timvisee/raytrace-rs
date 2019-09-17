@@ -1,4 +1,4 @@
-use crate::geometric::Sphere;
+use crate::geometric::Entity;
 use crate::scene::Scene;
 
 pub type Vector3 = nalgebra::base::Vector3<f64>;
@@ -11,8 +11,8 @@ pub struct Ray {
 }
 
 impl Ray {
-    /// Create a new ray originating from the screen/camera.
-    pub fn new_screen(x: u32, y: u32, scene: &Scene) -> Self {
+    /// Create a new ray originating from the prime/camera/screen.
+    pub fn new_prime(x: u32, y: u32, scene: &Scene) -> Self {
         // TODO: review these values
         // TODO: is this assert needed?
         assert!(scene.width > scene.height);
@@ -32,7 +32,7 @@ impl Ray {
 
 pub struct Intersection<'a> {
     pub distance: f64,
-    pub entity: &'a Sphere,
+    pub entity: &'a Entity,
 }
 
 pub trait Intersectable {

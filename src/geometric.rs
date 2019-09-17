@@ -1,5 +1,51 @@
 use crate::color::Color;
-use crate::math::{Intersectable, Point3, Ray};
+use crate::math::{Intersectable, Point3, Ray, Vector3};
+
+pub enum Entity {
+    Plane(Plane),
+    Sphere(Sphere),
+}
+
+impl Entity {
+    // TODO: use a trait for this
+    pub fn color(&self) -> &Color {
+        match *self {
+            Entity::Sphere(ref s) => &s.color,
+            Entity::Plane(ref p) => &p.color,
+        }
+    }
+}
+
+impl Intersectable for Entity {
+    fn intersect(&self, ray: &Ray) -> Option<f64> {
+        match *self {
+            Entity::Sphere(ref s) => s.intersect(ray),
+            Entity::Plane(ref p) => p.intersect(ray),
+        }
+    }
+}
+
+/// A geometric shape, an infinite plane.
+pub struct Plane {
+    pub center: Point3,
+    pub normal: Vector3,
+    pub color: Color,
+}
+
+impl Intersectable for Plane {
+    fn intersect(&self, ray: &Ray) -> Option<f64> {
+        let normal = &self.normal;
+        let denom = normal.dot(&ray.direction);
+        if denom > 1e-6 {
+            let v = self.center - ray.origin;
+            let distance = v.dot(&normal) / denom;
+            if distance >= 0.0 {
+                return Some(distance);
+            }
+        }
+        None
+    }
+}
 
 /// A geometric shape, a sphere.
 pub struct Sphere {

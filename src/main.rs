@@ -31,10 +31,10 @@ pub fn render(scene: &Scene) -> DynamicImage {
         .into_par_iter()
         .map(|i| (i / scene.height, i % scene.height))
         .map(|(x, y)| {
-            let ray = Ray::new_screen(x, y, scene);
+            let ray = Ray::new_prime(x, y, scene);
 
             if let Some(intersection) = scene.trace(&ray) {
-                intersection.entity.color.to_rgba()
+                intersection.entity.color().to_rgba()
             } else {
                 background
             }
