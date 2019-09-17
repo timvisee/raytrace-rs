@@ -1,42 +1,8 @@
+use crate::geometric::Sphere;
 use crate::scene::Scene;
 
-// pub use nalgebra::base::Vector3;
-// pub use nalgebra::geometry::Point3;
-
-pub type Vector3 = ::nalgebra::base::Vector3<f64>;
-pub type Point3 = ::nalgebra::geometry::Point3<f64>;
-
-// /// A 3 dimentional point.
-// #[derive(Copy, Clone, Debug, PartialEq)]
-// pub struct Point(f64, f64, f64);
-
-// impl Point {
-//     /// Create a type at `(0, 0, 0)`.
-//     pub fn zero() -> Self {
-//         Self(0.0, 0.0, 0.0)
-//     }
-
-//     /// Normalize this point to have a distance of 1 from the zero point.
-//     pub fn normalize(&mut self) {
-//         // Determine the current vector length
-//         let length = ((self.0 * self.0) + (self.1 * self.1) + (self.2 * self.2))
-//             .sqrt()
-//             .abs();
-
-//         // Multiply to give the vector a length of 1
-//         if length > 0.0 {
-//             self.0 /= length;
-//             self.1 /= length;
-//             self.2 /= length;
-//         } else {
-//             self.0 = 0.0;
-//             self.1 = 0.0;
-//             self.2 = 0.0;
-//         }
-//     }
-// }
-
-// pub type Vector = Point;
+pub type Vector3 = nalgebra::base::Vector3<f64>;
+pub type Point3 = nalgebra::geometry::Point3<f64>;
 
 /// A 3 dimentoinal ray.
 pub struct Ray {
@@ -64,8 +30,15 @@ impl Ray {
     }
 }
 
+pub struct Intersection<'a> {
+    pub distance: f64,
+    pub entity: &'a Sphere,
+}
+
 pub trait Intersectable {
-    fn intersect(&self, ray: &Ray) -> bool;
+    /// Check whether the given ray intersects with this entity in 3 dimentional space, and return
+    /// the distance between the intersection and ray origin.
+    fn intersect(&self, ray: &Ray) -> Option<f64>;
 }
 
 // TODO: is this obsolete? We're testing nalgebra internals at this point.

@@ -33,8 +33,8 @@ pub fn render(scene: &Scene) -> DynamicImage {
         .map(|(x, y)| {
             let ray = Ray::new_screen(x, y, scene);
 
-            if scene.sphere.intersect(&ray) {
-                scene.sphere.color.to_rgba()
+            if let Some(intersection) = scene.trace(&ray) {
+                intersection.entity.color.to_rgba()
             } else {
                 background
             }
