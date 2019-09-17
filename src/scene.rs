@@ -45,15 +45,15 @@ impl Default for Scene {
                     color: Color::new(0.4, 1.0, 0.4),
                 }),
                 Entity::Plane(Plane {
-                    center: Point3::new(0.0, -3.0, 0.0),
-                    normal: Vector3::new(0.0, -1.0, -0.1),
+                    center: Point3::new(0.0, -2.5, 0.0),
+                    normal: Vector3::new(0.0, -1.0, 0.0),
                     color: Color::new(0.2, 0.2, 0.2),
                 }),
             ],
             lights: vec![Light {
-                direction: Vector3::new(0.0, 0.0, -1.0),
+                direction: Vector3::new(1.0, -1.0, -1.0),
                 color: Color::new(1.0, 1.0, 1.0),
-                intensity: 3000.0,
+                intensity: 10.0,
             }],
         }
     }

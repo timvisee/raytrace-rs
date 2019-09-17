@@ -2,9 +2,6 @@ use std::ops::{Add, Mul};
 
 use image::Rgba;
 
-/// The maximum value a color can have.
-const COLOR_MAX: u16 = ::std::u8::MAX as u16;
-
 /// An RGB color.
 #[derive(Copy, Clone, Debug)]
 pub struct Color {
@@ -18,9 +15,23 @@ impl Color {
         Self { r, g, b }
     }
 
+    pub fn clamp(&self) -> Color {
+        Color {
+            r: self.r.min(1.0).max(0.0),
+            g: self.g.min(1.0).max(0.0),
+            b: self.b.min(1.0).max(0.0),
+        }
+    }
+
     pub fn to_rgba(&self) -> Rgba<u8> {
         // TODO: do not convert between u8/u16 here
-        Rgba([self.r as u8, self.g as u8, self.b as u8, 255])
+        let color = self.clamp();
+        Rgba([
+            (color.r * 255.0) as u8,
+            (color.g * 255.0) as u8,
+            (color.b * 255.0) as u8,
+            255,
+        ])
     }
 }
 
