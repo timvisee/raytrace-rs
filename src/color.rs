@@ -17,7 +17,7 @@ impl Color {
 
     pub fn to_rgba(&self) -> Rgba<u8> {
         // TODO: do not convert between u8/u16 here
-        Rgba([self.r as u8, self.g as u8, self.b as u8, 0])
+        Rgba([self.r as u8, self.g as u8, self.b as u8, 255])
     }
 }
 

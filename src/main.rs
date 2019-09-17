@@ -1,4 +1,5 @@
 use image::{DynamicImage, GenericImage, Rgba};
+use rayon::prelude::*;
 
 mod color;
 mod geometric;
@@ -19,20 +20,37 @@ fn main() {
 }
 
 pub fn render(scene: &Scene) -> DynamicImage {
-    let mut image = DynamicImage::new_rgb8(scene.width, scene.height);
-    let black = Rgba([0, 0, 0, 0]);
+    // TODO: efficiently load raw image from transmuted buffer here, instead of rebuilding the
+    // image from the generated pixelmap pixel-by-pixel
 
-    for x in 0..scene.width {
-        for y in 0..scene.height {
+    // The background color
+    let background = Rgba([0, 0, 0, 255]);
+
+    // Create a pixelmap of pixels
+    let pixels: Vec<Rgba<u8>> = (0..scene.width * scene.height)
+        .into_par_iter()
+        .map(|i| (i / scene.height, i % scene.height))
+        .map(|(x, y)| {
             let ray = Ray::new_screen(x, y, scene);
 
             if scene.sphere.intersect(&ray) {
-                image.put_pixel(x, y, scene.sphere.color.to_rgba())
+                scene.sphere.color.to_rgba()
             } else {
-                image.put_pixel(x, y, black);
+                background
             }
-        }
-    }
+        })
+        .collect();
 
-    image
+    // Build the dynamic image from the pixels
+    pixels
+        .into_iter()
+        .enumerate()
+        .map(|(i, pixel)| ((i as u32) / scene.height, (i as u32) % scene.height, pixel))
+        .fold(
+            DynamicImage::new_rgb8(scene.width, scene.height),
+            |mut image, (x, y, pixel)| {
+                image.put_pixel(x, y, pixel);
+                image
+            },
+        )
 }
