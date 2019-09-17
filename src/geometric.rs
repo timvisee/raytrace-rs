@@ -16,7 +16,7 @@ impl Entity {
     }
 
     pub fn albedo(&self) -> f32 {
-        0.25
+        0.18
     }
 }
 

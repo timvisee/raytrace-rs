@@ -10,6 +10,8 @@ mod scene;
 use math::*;
 use scene::*;
 
+pub const SHADOW_BIAS: f64 = 1e-13;
+
 fn main() {
     let scene = Scene::default();
 
@@ -42,8 +44,20 @@ pub fn render(scene: &Scene) -> DynamicImage {
                 let surface_normal = intersection.entity.surface_normal(&hit_point);
                 let direction_to_light = -light.direction;
 
+                // let light_power =
+                //     (surface_normal.dot(&direction_to_light) as f32) * light.intensity;
+
+                let shadow_ray = Ray {
+                    // origin: hit_point,
+                    origin: hit_point + (surface_normal * SHADOW_BIAS),
+                    direction: direction_to_light,
+                };
+                let in_light = scene.trace(&shadow_ray).is_none();
+
+                // TODO: light intensity to 0 if in shadow?
+                let light_intensity = if in_light { light.intensity } else { 1.0 };
                 let light_power =
-                    (surface_normal.dot(&direction_to_light) as f32) * light.intensity;
+                    (surface_normal.dot(&direction_to_light) as f32).max(0.0) * light_intensity;
 
                 let light_reflected = intersection.entity.albedo() / std::f32::consts::PI;
 
