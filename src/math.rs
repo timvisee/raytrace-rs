@@ -40,30 +40,3 @@ pub trait Intersectable {
     /// the distance between the intersection and ray origin.
     fn intersect(&self, ray: &Ray) -> Option<f64>;
 }
-
-// TODO: is this obsolete? We're testing nalgebra internals at this point.
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn point_normalize() {
-        // // A zero point
-        // let mut point = Vector3::new(0.0, 0.0, 0.0);
-        // assert_eq!(point.normalize(), Vector3::new(NaN, NaN, NaN),);
-
-        // A one point
-        let mut point = Vector3::new(1.0, 1.0, 1.0);
-        assert_eq!(
-            point.normalize(),
-            Vector3::new(0.5773502691896258, 0.5773502691896258, 0.5773502691896258)
-        );
-
-        // A non-stable point
-        let mut point = Vector3::new(3.0, 1.0, 2.0);
-        assert_eq!(
-            point.normalize(),
-            Vector3::new(0.8017837257372732, 0.2672612419124244, 0.5345224838248488),
-        );
-    }
-}
