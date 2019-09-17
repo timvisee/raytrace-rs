@@ -35,17 +35,17 @@ impl Default for Scene {
                 Entity::Sphere(Sphere {
                     center: Point3::new(1.5, 0.1, -3.0),
                     radius: 1.0,
-                    color: Color::new(255, 0, 100),
+                    color: Color::new(1.0, 0.0, 0.4),
                 }),
                 Entity::Sphere(Sphere {
                     center: Point3::new(-3.0, -1.5, -8.0),
                     radius: 2.0,
-                    color: Color::new(100, 255, 100),
+                    color: Color::new(0.4, 1.0, 0.4),
                 }),
                 Entity::Plane(Plane {
-                    center: Point3::new(0.0, -2.0, -5.0),
-                    normal: Vector3::new(-0.0, -1.0, 0.0),
-                    color: Color::new(50, 50, 50),
+                    center: Point3::new(0.0, -3.0, 0.0),
+                    normal: Vector3::new(0.0, -1.0, -0.1),
+                    color: Color::new(0.2, 0.2, 0.2),
                 }),
             ],
         }

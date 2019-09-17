@@ -59,7 +59,7 @@ impl Default for Sphere {
         Self {
             center: Point3::new(0.0, 0.0, -5.0),
             radius: 1.0,
-            color: Color::new(255, 100, 0),
+            color: Color::new(1.0, 0.4, 0.0),
         }
     }
 }
