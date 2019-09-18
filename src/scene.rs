@@ -71,11 +71,11 @@ impl Default for Scene {
                     color: Color::new(1.0, 1.0, 1.0),
                     intensity: 10.0,
                 }),
-                Light::Directional(DirectionalLight {
-                    direction: Vector3::new(0.5, -1.0, -0.3),
-                    color: Color::new(1.0, 0.0, 1.0),
-                    intensity: 10.0,
-                }),
+                // Light::Directional(DirectionalLight {
+                //     direction: Vector3::new(0.5, -1.0, -0.3),
+                //     color: Color::new(1.0, 0.0, 1.0),
+                //     intensity: 10.0,
+                // }),
                 Light::Spherical(SphericalLight {
                     position: Point3::new(-1.0, -1.5, -3.0),
                     color: Color::new(0.0, 1.0, 1.0),
