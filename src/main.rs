@@ -7,6 +7,7 @@ mod light;
 mod math;
 mod scene;
 
+use color::Color;
 use math::*;
 use scene::*;
 
@@ -37,32 +38,27 @@ pub fn render(scene: &Scene) -> DynamicImage {
             let ray = Ray::new_prime(x, y, scene);
 
             if let Some(intersection) = scene.trace(&ray) {
-                // Use first light for now
-                let light = &scene.lights[0];
-
                 let hit_point = ray.origin + (ray.direction * intersection.distance);
                 let surface_normal = intersection.entity.surface_normal(&hit_point);
-                let direction_to_light = -light.direction;
 
-                // let light_power =
-                //     (surface_normal.dot(&direction_to_light) as f32) * light.intensity;
+                let mut color = Color::new(0.0, 0.0, 0.0);
+                for light in &scene.lights {
+                    let direction_to_light = -light.direction;
 
-                let shadow_ray = Ray {
-                    // origin: hit_point,
-                    origin: hit_point + (surface_normal * SHADOW_BIAS),
-                    direction: direction_to_light,
-                };
-                let in_light = scene.trace(&shadow_ray).is_none();
+                    let shadow_ray = Ray {
+                        origin: hit_point + (direction_to_light * SHADOW_BIAS),
+                        direction: direction_to_light,
+                    };
+                    let in_light = scene.trace(&shadow_ray).is_none();
 
-                // TODO: light intensity to 0 if in shadow?
-                let light_intensity = if in_light { light.intensity } else { 1.0 };
-                let light_power =
-                    (surface_normal.dot(&direction_to_light) as f32).max(0.0) * light_intensity;
+                    let light_intensity = if in_light { light.intensity } else { 0.0 };
+                    let light_power =
+                        (surface_normal.dot(&direction_to_light) as f32).max(0.0) * light_intensity;
+                    let light_reflected = intersection.entity.albedo() / std::f32::consts::PI;
 
-                let light_reflected = intersection.entity.albedo() / std::f32::consts::PI;
-
-                let color =
-                    *intersection.entity.color() * light.color * light_power * light_reflected;
+                    let light_color = light.color * light_power * light_reflected;
+                    color = color + (*intersection.entity.color() * light_color);
+                }
 
                 color.to_rgba()
             } else {
