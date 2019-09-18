@@ -8,6 +8,7 @@ mod math;
 mod scene;
 
 use color::Color;
+use light::Light;
 use math::*;
 use scene::*;
 
@@ -43,21 +44,51 @@ pub fn render(scene: &Scene) -> DynamicImage {
 
                 let mut color = Color::new(0.0, 0.0, 0.0);
                 for light in &scene.lights {
-                    let direction_to_light = -light.direction;
+                    let direction_to_light = light.direction_from(&hit_point);
 
                     let shadow_ray = Ray {
                         origin: hit_point + (direction_to_light * SHADOW_BIAS),
                         direction: direction_to_light,
                     };
-                    let in_light = scene.trace(&shadow_ray).is_none();
 
-                    let light_intensity = if in_light { light.intensity } else { 0.0 };
-                    let light_power =
-                        (surface_normal.dot(&direction_to_light) as f32).max(0.0) * light_intensity;
-                    let light_reflected = intersection.entity.albedo() / std::f32::consts::PI;
+                    match light {
+                        Light::Directional(s) => {
+                            let in_light = scene.trace(&shadow_ray).is_none();
 
-                    let light_color = light.color * light_power * light_reflected;
-                    color = color + (*intersection.entity.color() * light_color);
+                            let light_intensity = if in_light {
+                                light.intensity(&hit_point)
+                            } else {
+                                0.0
+                            };
+                            let light_power = (surface_normal.dot(&direction_to_light) as f32)
+                                .max(0.0)
+                                * light_intensity;
+                            let light_reflected =
+                                intersection.entity.albedo() / std::f32::consts::PI;
+
+                            let light_color = light.color() * light_power * light_reflected;
+                            color = color + (*intersection.entity.color() * light_color);
+                        }
+                        Light::Spherical(s) => {
+                            let shadow_intersection = scene.trace(&shadow_ray);
+                            let in_light = shadow_intersection.is_none()
+                                || shadow_intersection.unwrap().distance
+                                    > light.distance(&hit_point);
+
+                            let r2 = (s.position - hit_point).norm() as f32;
+                            let light_intensity = s.intensity / (4.0 * ::std::f32::consts::PI * r2);
+
+                            // let light_intensity = if in_light { light.intensity() } else { 0.0 };
+                            let light_power = (surface_normal.dot(&direction_to_light) as f32)
+                                .max(0.0)
+                                * light_intensity;
+                            let light_reflected =
+                                intersection.entity.albedo() / std::f32::consts::PI;
+
+                            let light_color = light.color() * light_power * light_reflected;
+                            color = color + (*intersection.entity.color() * light_color);
+                        }
+                    }
                 }
 
                 color.to_rgba()

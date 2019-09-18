@@ -1,6 +1,6 @@
 use crate::color::Color;
 use crate::geometric::{Entity, Plane, Sphere};
-use crate::light::Light;
+use crate::light::{DirectionalLight, Light, SphericalLight};
 use crate::math::{Intersectable, Intersection, Point3, Ray, Vector3};
 
 /// Defines a scene to render.
@@ -66,16 +66,26 @@ impl Default for Scene {
                 }),
             ],
             lights: vec![
-                Light {
+                Light::Directional(DirectionalLight {
                     direction: Vector3::new(-0.4, -1.0, -0.3),
                     color: Color::new(1.0, 1.0, 1.0),
                     intensity: 10.0,
-                },
-                Light {
+                }),
+                Light::Directional(DirectionalLight {
                     direction: Vector3::new(0.5, -1.0, -0.3),
                     color: Color::new(1.0, 0.0, 1.0),
                     intensity: 10.0,
-                },
+                }),
+                Light::Spherical(SphericalLight {
+                    position: Point3::new(-1.0, -1.5, -3.0),
+                    color: Color::new(0.0, 1.0, 1.0),
+                    intensity: 800.0,
+                }),
+                Light::Spherical(SphericalLight {
+                    position: Point3::new(2.5, 0.5, -1.0),
+                    color: Color::new(1.0, 0.5, 0.0),
+                    intensity: 1000.0,
+                }),
             ],
         }
     }
