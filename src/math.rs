@@ -11,6 +11,11 @@ pub struct Ray {
 }
 
 impl Ray {
+    /// Create a new ray from the given `origin`, going into `direction`.
+    pub fn new(origin: Point3, direction: Vector3) -> Self {
+        Self { origin, direction }
+    }
+
     /// Create a new ray originating from the prime/camera/screen.
     pub fn new_prime(x: u32, y: u32, scene: &Scene) -> Self {
         // TODO: review these values
@@ -23,10 +28,10 @@ impl Ray {
         let sensor_y = (1.0 - ((y as f64 + 0.5) / scene.height as f64) * 2.0) * fov_adjustment;
 
         // Construct the row
-        Ray {
-            origin: Point3::new(0.0, 0.0, 0.0),
-            direction: Vector3::new(sensor_x, sensor_y, -1.0).normalize(),
-        }
+        Self::new(
+            Point3::new(0.0, 0.0, 0.0),
+            Vector3::new(sensor_x, sensor_y, -1.0).normalize(),
+        )
     }
 }
 

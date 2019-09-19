@@ -44,6 +44,11 @@ impl Default for Scene {
                     radius: 2.0,
                     color: Color::new(0.4, 1.0, 0.4),
                 }),
+                Entity::Sphere(Sphere {
+                    center: Point3::new(-3.0, -0.5, 2.5),
+                    radius: 2.0,
+                    color: Color::new(1.0, 1.0, 1.0),
+                }),
                 // Entity::Sphere(Sphere {
                 //     center: Point3::new(0.0, 0.0, -5.0),
                 //     radius: 1.0,
@@ -71,21 +76,21 @@ impl Default for Scene {
                     color: Color::new(1.0, 1.0, 1.0),
                     intensity: 10.0,
                 }),
-                // Light::Directional(DirectionalLight {
-                //     direction: Vector3::new(0.5, -1.0, -0.3),
-                //     color: Color::new(1.0, 0.0, 1.0),
-                //     intensity: 10.0,
+                Light::Directional(DirectionalLight {
+                    direction: Vector3::new(0.5, -1.0, -0.3),
+                    color: Color::new(1.0, 0.0, 1.0),
+                    intensity: 10.0,
+                }),
+                // Light::Spherical(SphericalLight {
+                //     position: Point3::new(-1.0, -1.5, -3.0),
+                //     color: Color::new(0.0, 1.0, 1.0),
+                //     intensity: 800.0,
                 // }),
-                Light::Spherical(SphericalLight {
-                    position: Point3::new(-1.0, -1.5, -3.0),
-                    color: Color::new(0.0, 1.0, 1.0),
-                    intensity: 800.0,
-                }),
-                Light::Spherical(SphericalLight {
-                    position: Point3::new(2.5, 0.5, -1.0),
-                    color: Color::new(1.0, 0.5, 0.0),
-                    intensity: 1000.0,
-                }),
+                // Light::Spherical(SphericalLight {
+                //     position: Point3::new(2.5, 0.5, -1.0),
+                //     color: Color::new(1.0, 0.5, 0.0),
+                //     intensity: 1000.0,
+                // }),
             ],
         }
     }

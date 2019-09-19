@@ -2,6 +2,11 @@ use std::ops::{Add, Mul};
 
 use image::Rgba;
 
+lazy_static! {
+    /// The color black.
+    pub static ref BLACK: Color = Color::new(0.0, 0.0, 0.0);
+}
+
 /// An RGB color.
 #[derive(Copy, Clone, Debug)]
 pub struct Color {
