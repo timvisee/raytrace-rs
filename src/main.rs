@@ -73,13 +73,8 @@ fn cast_ray(scene: &Scene, ray: Ray, recursion: u32) -> Color {
     // Reflection ray
     // TODO: check implementation correctness
     if recursion > 1 {
-        // Get inverse impact and normal ray delta, calculate reflection direction
-        let normal_delta = surface_normal - -ray.direction;
-        let reflect_direction = (-ray.direction + normal_delta * 2.0).normalize();
-        let ray = Ray::new(
-            hit_point + reflect_direction * REFLECT_BIAS,
-            reflect_direction,
-        );
+        // Get the surface reflection ray, bias it
+        let ray = ray.reflect(surface_normal, hit_point).bias(REFLECT_BIAS);
 
         // Cast reflection ray, obtain reflected color
         let reflect_color = cast_ray(scene, ray, recursion - 1);
@@ -87,7 +82,7 @@ fn cast_ray(scene: &Scene, ray: Ray, recursion: u32) -> Color {
         // let material = scene.entity.material();
         // TODO: what value to use here?
         let intensity = 1.0;
-        let light_power = (surface_normal.dot(&reflect_direction) as f32).max(0.0) * intensity;
+        let light_power = (surface_normal.dot(&ray.direction) as f32).max(0.0) * intensity;
         let light_reflected = intersection.entity.albedo() / std::f32::consts::PI;
 
         let light_color = reflect_color * light_power * light_reflected;
@@ -96,7 +91,7 @@ fn cast_ray(scene: &Scene, ray: Ray, recursion: u32) -> Color {
         color = color + light_color;
     }
 
-    // Light and shadow rays
+    // Shadow rays
     for light in &scene.lights {
         let direction_to_light = light.direction_from(&hit_point);
 
@@ -122,6 +117,8 @@ fn cast_ray(scene: &Scene, ray: Ray, recursion: u32) -> Color {
         // color = color + (material.coloration.color(&texture_coords) * light_color);
         color = color + (*intersection.entity.color() * light_color);
     }
+
+    // TODO: Refraction ray
 
     color
 }

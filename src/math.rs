@@ -33,6 +33,21 @@ impl Ray {
             Vector3::new(sensor_x, sensor_y, -1.0).normalize(),
         )
     }
+
+    /// Reflect this ray, based on the given `normal` at the given hit `point`.
+    pub fn reflect(&self, normal: Vector3, point: Point3) -> Self {
+        let direction = self.direction - 2.0 * self.direction.dot(&normal) * normal;
+        // TODO: assert if normalized direction is the same?
+        Self::new(point, direction)
+    }
+
+    /// Bias the origin of this ray by the given amount.
+    /// This moves the ray origin into the ray direction by the given `amount`.
+    pub fn bias(&self, amount: f64) -> Ray {
+        let mut ray = *self;
+        ray.origin += ray.direction * amount;
+        ray
+    }
 }
 
 pub struct Intersection<'a> {
