@@ -1,0 +1,54 @@
+image: "rust:slim"
+
+stages:
+  - check
+  - build
+
+variables:
+  RUST_VERSION: stable
+
+# # Cargo artifacts caching per Rust version and pipeline
+# cache:
+#   key: "$RUST_VERSION"
+#   paths:
+#     - /usr/local/rustup/
+#     - /usr/local/cargo/
+#     - target/
+
+# Install the proper Rust compiler version
+before_script:
+  - |
+    rustup install $RUST_VERSION
+    rustup default $RUST_VERSION
+  - |
+    rustc --version
+    cargo --version
+
+# Variable defaults
+variables:
+  RUST_VERSION: stable
+
+# Check on stable, beta and nightly 
+.check-base: &check-base
+  stage: check
+  script:
+    - cargo check --verbose
+    - cargo test --verbose
+check-stable:
+  <<: *check-base
+check-beta:
+  <<: *check-base
+  variables:
+    RUST_VERSION: beta
+check-nightly:
+  <<: *check-base
+  variables:
+    RUST_VERSION: nightly
+
+# Build using Rust stable
+build:
+  stage: build
+  needs:
+    - check-stable
+  script:
+    - cargo build --release --verbose
