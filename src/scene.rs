@@ -44,11 +44,6 @@ impl Default for Scene {
                     radius: 2.0,
                     color: Color::new(0.4, 1.0, 0.4),
                 }),
-                Entity::Sphere(Sphere {
-                    center: Point3::new(-3.0, -0.5, 2.5),
-                    radius: 2.0,
-                    color: Color::new(1.0, 1.0, 1.0),
-                }),
                 // Entity::Sphere(Sphere {
                 //     center: Point3::new(0.0, 0.0, -5.0),
                 //     radius: 1.0,
@@ -68,6 +63,16 @@ impl Default for Scene {
                     center: Point3::new(0.0, -2.5, 0.0),
                     normal: Vector3::new(0.0, -1.0, 0.0),
                     color: Color::new(0.2, 0.2, 0.2),
+                }),
+                Entity::Sphere(Sphere {
+                    center: Point3::new(-3.0, -0.5, 2.5),
+                    radius: 2.0,
+                    color: Color::new(1.0, 1.0, 1.0),
+                }),
+                Entity::Sphere(Sphere {
+                    center: Point3::new(3.0, 1.8, 6.0),
+                    radius: 4.0,
+                    color: Color::new(0.0, 0.0, 1.0),
                 }),
             ],
             lights: vec![
