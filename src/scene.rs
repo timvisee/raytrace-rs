@@ -1,6 +1,7 @@
 use crate::color::Color;
 use crate::geometric::{Entity, Plane, Sphere};
 use crate::light::{DirectionalLight, Light, SphericalLight};
+use crate::material::Material;
 use crate::math::{Intersectable, Intersection, Point3, Ray, Vector3};
 
 /// Defines a scene to render.
@@ -37,12 +38,18 @@ impl Default for Scene {
                 Entity::Sphere(Sphere {
                     center: Point3::new(1.5, 0.1, -3.0),
                     radius: 1.0,
-                    color: Color::new(1.0, 0.0, 0.4),
+                    material: Material::build()
+                        .color(Color::new(1.0, 0.0, 0.4))
+                        .build()
+                        .unwrap(),
                 }),
                 Entity::Sphere(Sphere {
                     center: Point3::new(-3.0, -1.5, -8.0),
                     radius: 2.0,
-                    color: Color::new(0.4, 1.0, 0.4),
+                    material: Material::build()
+                        .color(Color::new(0.4, 1.0, 0.4))
+                        .build()
+                        .unwrap(),
                 }),
                 // Entity::Sphere(Sphere {
                 //     center: Point3::new(0.0, 0.0, -5.0),
@@ -62,17 +69,26 @@ impl Default for Scene {
                 Entity::Plane(Plane {
                     center: Point3::new(0.0, -2.5, 0.0),
                     normal: Vector3::new(0.0, -1.0, 0.0),
-                    color: Color::new(0.2, 0.2, 0.2),
+                    material: Material::build()
+                        .color(Color::new(0.2, 0.2, 0.2))
+                        .build()
+                        .unwrap(),
                 }),
                 Entity::Sphere(Sphere {
                     center: Point3::new(-3.0, -0.5, 2.5),
                     radius: 2.0,
-                    color: Color::new(1.0, 1.0, 1.0),
+                    material: Material::build()
+                        .color(Color::new(1.0, 1.0, 1.0))
+                        .build()
+                        .unwrap(),
                 }),
                 Entity::Sphere(Sphere {
                     center: Point3::new(3.0, 1.8, 6.0),
                     radius: 4.0,
-                    color: Color::new(0.0, 0.0, 1.0),
+                    material: Material::build()
+                        .color(Color::new(0.0, 0.0, 1.0))
+                        .build()
+                        .unwrap(),
                 }),
             ],
             lights: vec![

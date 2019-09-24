@@ -5,6 +5,7 @@ authors = ["timvisee <tim@visee.me>"]
 edition = "2018"
 
 [dependencies]
+derive_builder = "0.7"
 image = "0.22"
 lazy_static = "1.4"
 nalgebra = "0.18"

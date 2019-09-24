@@ -1,4 +1,6 @@
 #[macro_use]
+extern crate derive_builder;
+#[macro_use]
 extern crate lazy_static;
 
 use std::f32::consts::PI;
@@ -9,6 +11,7 @@ use rayon::prelude::*;
 mod color;
 mod geometric;
 mod light;
+mod material;
 mod math;
 mod scene;
 
@@ -85,7 +88,7 @@ fn cast_ray(scene: &Scene, ray: Ray, recursion: u32) -> Color {
         // TODO: what value to use here?
         let intensity = 1.0;
         let light_power = (surface_normal.dot(&ray.direction) as f32).max(0.0) * intensity;
-        let light_reflected = intersection.entity.albedo() / PI;
+        let light_reflected = intersection.entity.material().albedo / PI;
 
         let light_color = reflect_color * light_power * light_reflected;
         // color = color + (material.coloration.color(&texture_coords) * light_color);
@@ -113,11 +116,11 @@ fn cast_ray(scene: &Scene, ray: Ray, recursion: u32) -> Color {
         // let material = scene.entity.material();
         let light_power =
             (surface_normal.dot(&direction_to_light) as f32).max(0.0) * light_intensity;
-        let light_reflected = intersection.entity.albedo() / PI;
+        let light_reflected = intersection.entity.material().albedo / PI;
 
         let light_color = light.color() * light_power * light_reflected;
         // color = color + (material.coloration.color(&texture_coords) * light_color);
-        color = color + *intersection.entity.color() * light_color;
+        color = color + intersection.entity.material().color * light_color;
     }
 
     // TODO: Refraction ray

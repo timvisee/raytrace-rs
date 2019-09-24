@@ -1,4 +1,4 @@
-use crate::color::Color;
+use crate::material::Material;
 use crate::math::{Intersectable, Point3, Ray, Vector3};
 
 #[derive(Copy, Clone, Debug)]
@@ -9,17 +9,11 @@ pub enum Entity {
 
 impl Entity {
     // TODO: use a trait for this
-    pub fn color(&self) -> &Color {
+    pub fn material(&self) -> Material {
         match self {
-            Entity::Sphere(ref s) => &s.color,
-            Entity::Plane(ref p) => &p.color,
+            Entity::Sphere(ref s) => s.material,
+            Entity::Plane(ref p) => p.material,
         }
-    }
-
-    pub fn albedo(&self) -> f32 {
-        // 0.18
-        // 0.25
-        0.5
     }
 }
 
@@ -44,7 +38,7 @@ impl Intersectable for Entity {
 pub struct Plane {
     pub center: Point3,
     pub normal: Vector3,
-    pub color: Color,
+    pub material: Material,
 }
 
 impl Intersectable for Plane {
@@ -71,7 +65,7 @@ impl Intersectable for Plane {
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
-    pub color: Color,
+    pub material: Material,
 }
 
 impl Default for Sphere {
@@ -79,7 +73,7 @@ impl Default for Sphere {
         Self {
             center: Point3::new(0.0, 0.0, -5.0),
             radius: 1.0,
-            color: Color::new(1.0, 0.4, 0.0),
+            material: Material::default(),
         }
     }
 }
