@@ -5,6 +5,7 @@ pub type Vector3 = nalgebra::base::Vector3<f64>;
 pub type Point3 = nalgebra::geometry::Point3<f64>;
 
 /// A 3 dimentoinal ray.
+#[derive(Copy, Clone, Debug)]
 pub struct Ray {
     pub origin: Point3,
     pub direction: Vector3,
@@ -50,6 +51,7 @@ impl Ray {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct Intersection<'a> {
     pub distance: f64,
     pub entity: &'a Entity,

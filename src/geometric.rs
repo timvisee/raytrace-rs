@@ -1,6 +1,7 @@
 use crate::color::Color;
 use crate::math::{Intersectable, Point3, Ray, Vector3};
 
+#[derive(Copy, Clone, Debug)]
 pub enum Entity {
     Plane(Plane),
     Sphere(Sphere),
@@ -9,7 +10,7 @@ pub enum Entity {
 impl Entity {
     // TODO: use a trait for this
     pub fn color(&self) -> &Color {
-        match *self {
+        match self {
             Entity::Sphere(ref s) => &s.color,
             Entity::Plane(ref p) => &p.color,
         }
@@ -24,14 +25,14 @@ impl Entity {
 
 impl Intersectable for Entity {
     fn intersect(&self, ray: &Ray) -> Option<f64> {
-        match *self {
+        match self {
             Entity::Sphere(ref s) => s.intersect(ray),
             Entity::Plane(ref p) => p.intersect(ray),
         }
     }
 
     fn surface_normal(&self, point: &Point3) -> Vector3 {
-        match *self {
+        match self {
             Entity::Sphere(ref s) => s.surface_normal(point),
             Entity::Plane(ref p) => p.surface_normal(point),
         }
@@ -39,6 +40,7 @@ impl Intersectable for Entity {
 }
 
 /// A geometric shape, an infinite plane.
+#[derive(Copy, Clone, Debug)]
 pub struct Plane {
     pub center: Point3,
     pub normal: Vector3,
@@ -51,7 +53,7 @@ impl Intersectable for Plane {
         let denom = normal.dot(&ray.direction);
         if denom > 1e-6 {
             let v = self.center - ray.origin;
-            let distance = v.dot(&normal) / denom;
+            let distance = v.dot(normal) / denom;
             if distance >= 0.0 {
                 return Some(distance);
             }
@@ -65,6 +67,7 @@ impl Intersectable for Plane {
 }
 
 /// A geometric shape, a sphere.
+#[derive(Copy, Clone, Debug)]
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
@@ -103,6 +106,6 @@ impl Intersectable for Sphere {
     }
 
     fn surface_normal(&self, point: &Point3) -> Vector3 {
-        (*point - self.center).normalize()
+        (point - self.center).normalize()
     }
 }
