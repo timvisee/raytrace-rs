@@ -16,9 +16,9 @@ entities:
     radius: 1.0
     material:
       color:
-        r: 1.0
-        g: 0.4
-        b: 0.0
+        - 1.0
+        - 0.4
+        - 0.0
       albedo: 0.5
       surface:
         type: diffuse
@@ -30,9 +30,9 @@ entities:
     radius: 1.0
     material:
       color:
-        r: 1.0
-        g: 0.0
-        b: 0.4
+        - 1.0
+        - 0.0
+        - 0.4
       albedo: 0.5
       surface:
         type: diffuse
@@ -44,9 +44,9 @@ entities:
     radius: 2.0
     material:
       color:
-        r: 0.4
-        g: 1.0
-        b: 0.4
+        - 0.4
+        - 1.0
+        - 0.4
       albedo: 0.5
       surface:
         type: diffuse
@@ -58,9 +58,9 @@ entities:
     radius: 1.0
     material:
       color:
-        r: 1.0
-        g: 1.0
-        b: 1.0
+        - 1.0
+        - 1.0
+        - 1.0
       albedo: 0.18
       surface:
         type: transparent
@@ -74,9 +74,9 @@ entities:
     radius: 1.2
     material:
       color:
-        r: 0.5
-        g: 0.5
-        b: 0.5
+        - 0.5
+        - 0.5
+        - 0.5
       albedo: 0.25
       surface:
         type: specular
@@ -92,9 +92,9 @@ entities:
       - 0.0
     material:
       color:
-        r: 0.2
-        g: 0.2
-        b: 0.2
+        - 0.2
+        - 0.2
+        - 0.2
       albedo: 0.5
       surface:
         type: diffuse
@@ -109,9 +109,9 @@ entities:
       - -1.0
     material:
       color:
-        r: 0.1
-        g: 0.05
-        b: 0.6
+        - 0.1
+        - 0.05
+        - 0.6
       albedo: 0.5
       surface:
         type: diffuse
@@ -123,9 +123,9 @@ entities:
     radius: 2.0
     material:
       color:
-        r: 1.0
-        g: 1.0
-        b: 1.0
+        - 1.0
+        - 1.0
+        - 1.0
       albedo: 0.5
       surface:
         type: diffuse
@@ -137,9 +137,9 @@ entities:
     radius: 4.0
     material:
       color:
-        r: 0.0
-        g: 0.0
-        b: 1.0
+        - 0.0
+        - 0.0
+        - 1.0
       albedo: 0.5
       surface:
         type: diffuse
@@ -152,9 +152,9 @@ lights:
       - -1.0
       - -0.3
     color:
-      r: 1.0
-      g: 1.0
-      b: 1.0
+      - 1.0
+      - 1.0
+      - 1.0
     intensity: 10.0
   - type: directional
     direction:
@@ -162,9 +162,9 @@ lights:
       - -1.0
       - -0.3
     color:
-      r: 1.0
-      g: 0.0
-      b: 1.0
+      - 1.0
+      - 0.0
+      - 1.0
     intensity: 10.0
   - type: spherical
     position:
@@ -172,9 +172,9 @@ lights:
       - -1.5
       - -3.0
     color:
-      r: 0.0
-      g: 1.0
-      b: 1.0
+      - 0.0
+      - 1.0
+      - 1.0
     intensity: 800.0
   - type: spherical
     position:
@@ -182,7 +182,7 @@ lights:
       - 0.5
       - -1.0
     color:
-      r: 1.0
-      g: 0.5
-      b: 0.0
+      - 1.0
+      - 0.5
+      - 0.0
     intensity: 1000.0

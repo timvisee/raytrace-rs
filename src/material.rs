@@ -32,6 +32,7 @@ pub struct Material {
     pub albedo: f32,
 
     /// Material surface type.
+    #[serde(default)]
     pub surface: Surface,
 }
 
@@ -78,4 +79,10 @@ pub enum Surface {
         /// Should be in `(0,1)`, 0 is opaque, 1 is fully transparent.
         transparency: f32,
     },
+}
+
+impl Default for Surface {
+    fn default() -> Self {
+        Self::Diffuse
+    }
 }

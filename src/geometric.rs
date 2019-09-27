@@ -40,8 +40,13 @@ impl Intersectable for Entity {
 /// A geometric shape, an infinite plane.
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct Plane {
+    /// Plane center in world space.
     pub center: Point3,
+
+    /// Plane normal.
     pub normal: Vector3,
+
+    /// Plane material.
     pub material: Material,
 }
 
@@ -67,8 +72,14 @@ impl Intersectable for Plane {
 /// A geometric shape, a sphere.
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct Sphere {
+    /// Sphere center in world space.
     pub center: Point3,
+
+    /// Sphere radius.
+    #[serde(default = "one")]
     pub radius: f64,
+
+    /// Sphere material.
     pub material: Material,
 }
 
@@ -100,4 +111,11 @@ impl Intersectable for Sphere {
     fn surface_normal(&self, point: &Point3) -> Vector3 {
         (point - self.center).normalize()
     }
+}
+
+/// Returns one.
+///
+/// Helper function for serde defaults.
+fn one() -> f64 {
+    1.0
 }
