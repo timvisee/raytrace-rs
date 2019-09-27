@@ -26,12 +26,14 @@ mod light;
 mod material;
 mod math;
 mod scene;
+mod timer;
 
 use color::{Color, BLACK};
 use geometric::Entity;
 use material::Surface;
 use math::*;
-use scene::*;
+use scene::Scene;
+use timer::Timer;
 
 fn main() {
     // CLI argument handling
@@ -157,6 +159,7 @@ fn run(open: bool, scene_path: &Path, output_path: &Path) {
 
     // Render scene to an image, save it to a file
     eprintln!("Rendering scene...");
+    let timer = Timer::new();
     let render = render(&scene);
     match render.save(output_path) {
         Ok(_) => {}
@@ -169,7 +172,7 @@ fn run(open: bool, scene_path: &Path, output_path: &Path) {
             return;
         }
     }
-    eprintln!("Rendering finished");
+    eprintln!("Rendering finished, took {}", timer.format_elapsed());
 
     // Open render file
     if open {
@@ -182,9 +185,6 @@ fn run(open: bool, scene_path: &Path, output_path: &Path) {
 ///
 /// This renders the given scene to a newly created dynamic image.
 pub fn render(scene: &Scene) -> DynamicImage {
-    // TODO: efficiently load raw image from transmuted buffer here, instead of rebuilding the
-    // image from the generated pixelmap pixel-by-pixel
-
     let camera = scene.camera;
 
     // Create a pixelmap of pixels
@@ -198,6 +198,7 @@ pub fn render(scene: &Scene) -> DynamicImage {
         .collect();
 
     // Build the dynamic image from the pixels
+    // TODO: find more efficient method, render directly to image buffer
     pixels
         .into_iter()
         .enumerate()
