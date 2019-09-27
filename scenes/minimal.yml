@@ -1,0 +1,56 @@
+---
+
+# Camera configuration
+camera:
+  width: 1920
+  height: 1080
+
+# Scene entities
+entities:
+  # Centered orange sphere before camera
+  - type: sphere
+    center:
+      - 0.0
+      - 0.0
+      - -4.0
+    radius: 1.0
+    material:
+      color:
+        - 1.0
+        - 0.4
+        - 0.0
+      albedo: 0.5
+      surface:
+        type: diffuse
+
+  # Gray plane on the ground
+  - type: plane
+    center:
+      - 0.0
+      - -2.5
+      - 0.0
+    normal:
+      - 0.0
+      - -1.0
+      - 0.0
+    material:
+      color:
+        - 0.2
+        - 0.2
+        - 0.2
+      albedo: 0.5
+      surface:
+        type: diffuse
+
+# Scene lights
+lights:
+  - type: directional
+    direction:
+      - 0.5
+      - -1.0
+      - -0.3
+    color:
+      - 1.0
+      - 1.0
+      - 1.0
+    intensity: 10.0

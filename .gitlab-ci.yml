@@ -62,4 +62,5 @@ test:
   script:
     - cargo build --release
     - ./target/release/raytrace-rs --help
-    - ./target/release/raytrace-rs scenes/default.yml render.png
+    - ./target/release/raytrace-rs scenes/minimal.yml render.png
+    - ./target/release/raytrace-rs scenes/balls.yml render.png

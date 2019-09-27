@@ -1,0 +1,230 @@
+---
+
+# Scene configuration
+bias: 1e-13
+depth: 20
+
+# Camera configuration
+camera:
+  width: 1920
+  height: 1080
+  fov: 90
+
+# Scene entities
+entities:
+  - type: sphere
+    center: [2.0, 2.0, -8.0]
+    radius: 1.0
+    material:
+      color: [1.0, 0.4, 0.0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [2.0, 0.0, -8.0]
+    radius: 1.0
+    material:
+      color: [1.0, 0.4, 0.0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [2.0, -2.0, -8.0]
+    radius: 1.0
+    material:
+      color: [1.0, 0.4, 0.0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [0.0, 2.0, -8.0]
+    radius: 1.0
+    material:
+      color: [1.0, 0.4, 0.0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [0.0, 0.0, -8.0]
+    radius: 1.0
+    material:
+      color: [1.0, 0.4, 0.0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [0.0, -2.0, -8.0]
+    radius: 1.0
+    material:
+      color: [1.0, 0.4, 0.0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [-2.0, 2.0, -8.0]
+    radius: 1.0
+    material:
+      color: [1.0, 0.4, 0.0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [-2.0, 0.0, -8.0]
+    radius: 1.0
+    material:
+      color: [1.0, 0.4, 0.0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [-2.0, -2.0, -8.0]
+    radius: 1.0
+    material:
+      color: [1.0, 0.4, 0.0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+
+  # Glass balls
+  - type: sphere
+    center: [2.0, 2.0, -4.0]
+    radius: 0.9
+    material:
+      color: [1.0, 1.0, 1.0]
+      albedo: 0.18
+      surface:
+        type: transparent
+        index: 1.5
+        transparency: 1.0
+  - type: sphere
+    center: [2.0, 0.0, -4.0]
+    radius: 0.9
+    material:
+      color: [1.0, 1.0, 1.0]
+      albedo: 0.18
+      surface:
+        type: transparent
+        index: 1.5
+        transparency: 1.0
+  - type: sphere
+    center: [2.0, -2.0, -4.0]
+    radius: 0.9
+    material:
+      color: [1.0, 1.0, 1.0]
+      albedo: 0.18
+      surface:
+        type: transparent
+        index: 1.5
+        transparency: 1.0
+  - type: sphere
+    center: [0.0, 2.0, -4.0]
+    radius: 0.9
+    material:
+      color: [1.0, 1.0, 1.0]
+      albedo: 0.18
+      surface:
+        type: transparent
+        index: 1.5
+        transparency: 1.0
+  - type: sphere
+    center: [0.0, 0.0, -4.0]
+    radius: 0.9
+    material:
+      color: [1.0, 1.0, 1.0]
+      albedo: 0.18
+      surface:
+        type: transparent
+        index: 1.5
+        transparency: 1.0
+  - type: sphere
+    center: [0.0, -2.0, -4.0]
+    radius: 0.9
+    material:
+      color: [1.0, 1.0, 1.0]
+      albedo: 0.18
+      surface:
+        type: transparent
+        index: 1.5
+        transparency: 1.0
+  - type: sphere
+    center: [-2.0, 2.0, -4.0]
+    radius: 0.9
+    material:
+      color: [1.0, 1.0, 1.0]
+      albedo: 0.18
+      surface:
+        type: transparent
+        index: 1.5
+        transparency: 1.0
+  - type: sphere
+    center: [-2.0, 0.0, -4.0]
+    radius: 0.9
+    material:
+      color: [1.0, 1.0, 1.0]
+      albedo: 0.18
+      surface:
+        type: transparent
+        index: 1.5
+        transparency: 1.0
+  - type: sphere
+    center: [-2.0, -2.0, -4.0]
+    radius: 0.9
+    material:
+      color: [1.0, 1.0, 1.0]
+      albedo: 0.18
+      surface:
+        type: transparent
+        index: 1.5
+        transparency: 1.0
+
+  # Background plane
+  - type: plane
+    center:
+      - 0.0
+      - 0.0
+      - -10.0
+    normal:
+      - 0.0
+      - 0.0
+      - -1.0
+    material:
+      color:
+        - 0.4
+        - 0.4
+        - 1.0
+      albedo: 0.5
+      surface:
+        type: diffuse
+
+# Scene lights
+lights:
+  - type: spherical
+    position:
+      - 0.0
+      - 0.0
+      - -5.0
+    color:
+      - 1.0
+      - 1.0
+      - 1.0
+    intensity: 200.0
+  - type: spherical
+    position:
+      - 6.5
+      - 0.0
+      - -6
+    color:
+      - 1.0
+      - 0.4
+      - 0.6
+    intensity: 1000.0
+  - type: spherical
+    position:
+      - -6.5
+      - 0.0
+      - -6
+    color:
+      - 0.4
+      - 1.0
+      - 0.6
+    intensity: 1000.0

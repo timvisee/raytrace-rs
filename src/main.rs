@@ -134,7 +134,7 @@ fn render(open: bool, scene_path: &Path, output_path: &Path) {
     };
 
     // Render scene to an image, save it to a file
-    eprintln!("Rendering scene...");
+    eprintln!("Rendering scene on {} CPU cores...", num_cpus::get());
     let timer = Timer::new();
     let render = render::render(&scene);
     match render.save(output_path) {

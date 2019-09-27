@@ -15,6 +15,11 @@ use crate::scene::Scene;
 pub fn render(scene: &Scene) -> DynamicImage {
     let camera = scene.camera;
 
+    // Warn if there are no lights
+    if scene.lights.is_empty() {
+        eprintln!("Warning: no lights in scene, you won't be able to see anything");
+    }
+
     // Create a pixelmap of pixels
     let pixels: Vec<Rgba<u8>> = (0..camera.pixels())
         .into_par_iter()
