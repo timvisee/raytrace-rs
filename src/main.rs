@@ -25,13 +25,6 @@ use material::Surface;
 use math::*;
 use scene::*;
 
-/// The maximum depth/recursion for caste rays.
-pub const RAY_RECURSION: u32 = 16;
-
-/// The shadow/reflect/transform bias length.
-// TODO: configure this per scene
-pub const BIAS: f64 = 1e-13;
-
 fn main() {
     // Load scene from file
     eprintln!("Loading scene from file...");
@@ -98,7 +91,7 @@ fn shade_diffuse(scene: &Scene, entity: &Entity, hit: &Point3, surface_normal: V
         let direction_to_light = light.direction_from(&hit);
 
         let shadow_ray = Ray {
-            origin: hit + (surface_normal * BIAS),
+            origin: hit + (surface_normal * scene.bias),
             direction: direction_to_light,
         };
         let shadow_intersection = scene.trace(&shadow_ray);
@@ -136,7 +129,7 @@ fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection, depth: u32) 
         Surface::Diffuse => shade_diffuse(scene, intersection.entity, &hit, normal),
         Surface::Specular { reflectivity } => {
             let mut color = shade_diffuse(scene, intersection.entity, &hit, normal);
-            let reflection_ray = Ray::create_reflection(&normal, &ray.direction, hit, BIAS);
+            let reflection_ray = Ray::create_reflection(&normal, &ray.direction, hit, scene.bias);
             color = color * (1.0 - reflectivity);
             color = color + (cast_ray(scene, &reflection_ray, depth + 1) * reflectivity);
             color
@@ -155,11 +148,12 @@ fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection, depth: u32) 
 
             if kr < 1.0 {
                 let transmission_ray =
-                    Ray::create_transmission(normal, ray.direction, hit, index, BIAS).unwrap();
+                    Ray::create_transmission(normal, ray.direction, hit, index, scene.bias)
+                        .unwrap();
                 refraction_color = cast_ray(scene, &transmission_ray, depth + 1);
             }
 
-            let reflection_ray = Ray::create_reflection(&normal, &ray.direction, hit, BIAS);
+            let reflection_ray = Ray::create_reflection(&normal, &ray.direction, hit, scene.bias);
             let reflection_color = cast_ray(scene, &reflection_ray, depth + 1);
             let mut color = reflection_color * kr + refraction_color * (1.0 - kr);
             color = color * transparency * surface_color;
@@ -197,7 +191,7 @@ fn fresnel(incident: &Vector3, normal: &Vector3, index: f32) -> f64 {
 /// For prime rays, simply give a depth of `0`.
 pub fn cast_ray(scene: &Scene, ray: &Ray, depth: u32) -> Color {
     // We're just seeing black if max ray recursion is reached
-    if depth >= RAY_RECURSION {
+    if depth >= scene.depth {
         return *BLACK;
     }
 
