@@ -50,10 +50,11 @@ impl Ray {
         // TODO: is this assert needed?
         assert!(scene.width > scene.height);
         let fov_adjustment = (scene.fov.to_radians() / 2.0).tan();
-        let aspect_ratio = scene.width as f64 / scene.height as f64;
-        let sensor_x =
-            ((((x as f64 + 0.5) / scene.width as f64) * 2.0 - 1.0) * aspect_ratio) * fov_adjustment;
-        let sensor_y = (1.0 - ((y as f64 + 0.5) / scene.height as f64) * 2.0) * fov_adjustment;
+        let aspect_ratio = f64::from(scene.width) / f64::from(scene.height);
+        let sensor_x = (((f64::from(x) + 0.5) / f64::from(scene.width) * 2.0 - 1.0) * aspect_ratio)
+            * fov_adjustment;
+        let sensor_y =
+            (1.0 - ((f64::from(y) + 0.5) / f64::from(scene.height)) * 2.0) * fov_adjustment;
 
         // Construct the row
         Self::new(
@@ -116,7 +117,7 @@ impl Ray {
         bias: f64,
     ) -> Option<Self> {
         let mut ref_n = normal;
-        let mut eta_t = index as f64;
+        let mut eta_t = f64::from(index);
         let mut eta_i = 1.0;
         let mut i_dot_n = incident.dot(&normal);
         if i_dot_n < 0.0 {

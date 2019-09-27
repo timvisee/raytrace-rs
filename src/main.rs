@@ -157,7 +157,7 @@ fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection, depth: u32) 
 fn fresnel(incident: &Vector3, normal: &Vector3, index: f32) -> f64 {
     let i_dot_n = incident.dot(&normal);
     let mut eta_i = 1.0;
-    let mut eta_t = index as f64;
+    let mut eta_t = f64::from(index);
     if i_dot_n > 0.0 {
         eta_i = eta_t;
         eta_t = 1.0;
