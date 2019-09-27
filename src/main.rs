@@ -12,6 +12,7 @@ use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::process;
 use std::sync::mpsc::channel;
+use std::thread;
 use std::time::Duration;
 
 use clap::{App, Arg};
@@ -126,10 +127,13 @@ fn wait_on_change(path: &Path) {
     // Wait for scene file change
     loop {
         match rx.recv().expect("failed to watch file for changes") {
-            DebouncedEvent::Write(_) => break,
+            DebouncedEvent::NoticeRemove(_) | DebouncedEvent::Write(_) => break,
             _ => {}
         }
     }
+
+    // Wait a little longer, ensure the file written
+    thread::sleep(Duration::from_millis(200));
 }
 
 fn run(open: bool, scene_path: &Path, output_path: &Path) {
