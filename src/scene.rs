@@ -24,7 +24,8 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn trace(&self, ray: &Ray) -> Option<Intersection> {
+    /// Cast a ray in the scene, and get the first intersection.
+    pub fn intersect(&self, ray: &Ray) -> Option<Intersection> {
         self.entities
             .iter()
             .filter_map(|s| {

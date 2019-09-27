@@ -21,7 +21,7 @@ pub fn render(scene: &Scene) -> DynamicImage {
         .map(|i| (i / scene.camera.height, i % scene.camera.height))
         .map(|(x, y)| {
             let ray = Ray::new_prime(x, y, scene);
-            cast_ray(scene, &ray, 0).to_rgba()
+            observe_ray(scene, &ray, 0).to_rgba()
         })
         .collect();
 
@@ -46,41 +46,21 @@ pub fn render(scene: &Scene) -> DynamicImage {
         )
 }
 
-/// Shade hit point on diffuse surface.
+/// Cast a ray in the scene, get observed color.
 ///
-/// Calculate the observed color at a diffuse surface point.
-///
-/// The hit `entity`, specific `hit` and entity surface normal must be given.
-fn shade_diffuse(scene: &Scene, entity: &Entity, hit: &Point3, surface_normal: Vector3) -> Color {
-    // TODO: textured coordinates:
-    // let texture_coords = entity.texture_coords(&hit);
-
-    let mut color = *BLACK;
-    for light in &scene.lights {
-        let direction_to_light = light.direction_from(&hit);
-
-        let shadow_ray = Ray {
-            origin: hit + (surface_normal * scene.bias),
-            direction: direction_to_light,
-        };
-        let shadow_intersection = scene.trace(&shadow_ray);
-        let in_light = shadow_intersection.is_none()
-            || shadow_intersection.unwrap().distance > light.distance(hit);
-
-        let light_intensity = if in_light { light.intensity(hit) } else { 0.0 };
-        let material = entity.material();
-        let light_power =
-            (surface_normal.dot(&direction_to_light) as f32).max(0.0) * light_intensity;
-        let light_reflected = material.albedo / PI;
-
-        let light_color = light.color() * light_power * light_reflected;
-
-        // TODO: textured coordinates:
-        // color = color + (material.coloration.color(&texture_coords) * light_color);
-        color = color + (material.color * light_color);
+/// A current depth should be given to limit ray recursion.
+/// For prime rays, simply give a depth of `0`.
+fn observe_ray(scene: &Scene, ray: &Ray, depth: u32) -> Color {
+    // We're just seeing black if max ray recursion is reached
+    if depth >= scene.depth {
+        return *BLACK;
     }
 
-    color.clamp()
+    // Find ray intersection, get intersection color
+    scene
+        .intersect(&ray)
+        .map(|i| observe_intersection(scene, &ray, &i, depth))
+        .unwrap_or(*BLACK)
 }
 
 /// Get observed color at given intersection.
@@ -89,7 +69,12 @@ fn shade_diffuse(scene: &Scene, entity: &Entity, hit: &Point3, surface_normal: V
 ///
 /// A current depth should be given to limit ray recursion.
 /// For prime rays, simply give a depth of `0`.
-fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection, depth: u32) -> Color {
+fn observe_intersection(
+    scene: &Scene,
+    ray: &Ray,
+    intersection: &Intersection,
+    depth: u32,
+) -> Color {
     let hit = ray.origin + (ray.direction * intersection.distance);
     let normal = intersection.entity.surface_normal(&hit);
 
@@ -100,7 +85,7 @@ fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection, depth: u32) 
             let mut color = shade_diffuse(scene, intersection.entity, &hit, normal);
             let reflection_ray = Ray::create_reflection(&normal, &ray.direction, hit, scene.bias);
             color = color * (1.0 - reflectivity);
-            color = color + (cast_ray(scene, &reflection_ray, depth + 1) * reflectivity);
+            color = color + (observe_ray(scene, &reflection_ray, depth + 1) * reflectivity);
             color
         }
         Surface::Transparent {
@@ -119,16 +104,53 @@ fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection, depth: u32) 
                 let transmission_ray =
                     Ray::create_transmission(normal, ray.direction, hit, index, scene.bias)
                         .unwrap();
-                refraction_color = cast_ray(scene, &transmission_ray, depth + 1);
+                refraction_color = observe_ray(scene, &transmission_ray, depth + 1);
             }
 
             let reflection_ray = Ray::create_reflection(&normal, &ray.direction, hit, scene.bias);
-            let reflection_color = cast_ray(scene, &reflection_ray, depth + 1);
+            let reflection_color = observe_ray(scene, &reflection_ray, depth + 1);
             let mut color = reflection_color * kr + refraction_color * (1.0 - kr);
             color = color * transparency * surface_color;
             color
         }
     }
+}
+
+/// Shade hit point on diffuse surface.
+///
+/// Calculate the observed color at a diffuse surface point.
+///
+/// The hit `entity`, specific `hit` and entity surface normal must be given.
+fn shade_diffuse(scene: &Scene, entity: &Entity, hit: &Point3, surface_normal: Vector3) -> Color {
+    // TODO: textured coordinates:
+    // let texture_coords = entity.texture_coords(&hit);
+
+    let mut color = *BLACK;
+    for light in &scene.lights {
+        let direction_to_light = light.direction_from(&hit);
+
+        let shadow_ray = Ray {
+            origin: hit + (surface_normal * scene.bias),
+            direction: direction_to_light,
+        };
+        let shadow_intersection = scene.intersect(&shadow_ray);
+        let in_light = shadow_intersection.is_none()
+            || shadow_intersection.unwrap().distance > light.distance(hit);
+
+        let light_intensity = if in_light { light.intensity(hit) } else { 0.0 };
+        let material = entity.material();
+        let light_power =
+            (surface_normal.dot(&direction_to_light) as f32).max(0.0) * light_intensity;
+        let light_reflected = material.albedo / PI;
+
+        let light_color = light.color() * light_power * light_reflected;
+
+        // TODO: textured coordinates:
+        // color = color + (material.coloration.color(&texture_coords) * light_color);
+        color = color + (material.color * light_color);
+    }
+
+    color.clamp()
 }
 
 /// Calcualte fresnel lens value.
@@ -152,21 +174,4 @@ fn fresnel(incident: &Vector3, normal: &Vector3, index: f32) -> f64 {
         let r_p = ((eta_i * cos_i) - (eta_t * cos_t)) / ((eta_i * cos_i) + (eta_t * cos_t));
         (r_s * r_s + r_p * r_p) / 2.0
     }
-}
-
-/// Cast a ray in the scene, get observed color.
-///
-/// A current depth should be given to limit ray recursion.
-/// For prime rays, simply give a depth of `0`.
-fn cast_ray(scene: &Scene, ray: &Ray, depth: u32) -> Color {
-    // We're just seeing black if max ray recursion is reached
-    if depth >= scene.depth {
-        return *BLACK;
-    }
-
-    // Find ray intersection, get intersection color
-    scene
-        .trace(&ray)
-        .map(|i| get_color(scene, &ray, &i, depth))
-        .unwrap_or(*BLACK)
 }
