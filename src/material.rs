@@ -21,7 +21,7 @@ lazy_static! {
 }
 
 /// Material type for an entity.
-#[derive(Copy, Clone, Debug, Builder)]
+#[derive(Copy, Clone, Debug, Deserialize, Builder)]
 #[builder(default)]
 pub struct Material {
     /// Base material color.
@@ -52,7 +52,7 @@ impl Default for Material {
 }
 
 /// Surface type for a material.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Deserialize)]
 pub enum Surface {
     /// A diffuse surface.
     Diffuse,

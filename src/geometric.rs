@@ -1,7 +1,7 @@
 use crate::material::Material;
 use crate::math::{Intersectable, Point3, Ray, Vector3};
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Deserialize)]
 pub enum Entity {
     Plane(Plane),
     Sphere(Sphere),
@@ -34,7 +34,7 @@ impl Intersectable for Entity {
 }
 
 /// A geometric shape, an infinite plane.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Deserialize)]
 pub struct Plane {
     pub center: Point3,
     pub normal: Vector3,
@@ -61,7 +61,7 @@ impl Intersectable for Plane {
 }
 
 /// A geometric shape, a sphere.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Deserialize)]
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,

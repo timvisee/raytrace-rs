@@ -46,15 +46,18 @@ impl Ray {
     /// Create a prime ray from the given screen pixel positionray from the given screen pixel
     /// position.
     pub fn new_prime(x: u32, y: u32, scene: &Scene) -> Self {
+        let camera = scene.camera;
+
         // TODO: review these values
         // TODO: is this assert needed?
-        assert!(scene.width > scene.height);
-        let fov_adjustment = (scene.fov.to_radians() / 2.0).tan();
-        let aspect_ratio = f64::from(scene.width) / f64::from(scene.height);
-        let sensor_x = (((f64::from(x) + 0.5) / f64::from(scene.width) * 2.0 - 1.0) * aspect_ratio)
+        assert!(camera.width > camera.height);
+        let fov_adjustment = (camera.fov.to_radians() / 2.0).tan();
+        let aspect_ratio = f64::from(camera.width) / f64::from(camera.height);
+        let sensor_x = (((f64::from(x) + 0.5) / f64::from(camera.width) * 2.0 - 1.0)
+            * aspect_ratio)
             * fov_adjustment;
         let sensor_y =
-            (1.0 - ((f64::from(y) + 0.5) / f64::from(scene.height)) * 2.0) * fov_adjustment;
+            (1.0 - ((f64::from(y) + 0.5) / f64::from(camera.height)) * 2.0) * fov_adjustment;
 
         // Construct the row
         Self::new(

@@ -4,7 +4,7 @@ use std::f64::INFINITY;
 use crate::color::Color;
 use crate::math::{Point3, Vector3};
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Deserialize)]
 pub enum Light {
     Directional(DirectionalLight),
     Spherical(SphericalLight),
@@ -45,14 +45,14 @@ impl Light {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Deserialize)]
 pub struct DirectionalLight {
     pub direction: Vector3,
     pub color: Color,
     pub intensity: f32,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Deserialize)]
 pub struct SphericalLight {
     pub position: Point3,
     pub color: Color,

@@ -2,11 +2,15 @@
 extern crate derive_builder;
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate serde_derive;
 
 use std::f32::consts::PI;
+use std::fs::File;
 
 use image::{DynamicImage, GenericImage, Rgba};
 use rayon::prelude::*;
+use serde_yaml;
 
 mod color;
 mod geometric;
@@ -29,8 +33,9 @@ pub const RAY_RECURSION: u32 = 16;
 pub const BIAS: f64 = 1e-13;
 
 fn main() {
-    // Load a scene
-    let scene = Scene::default();
+    // Load scene from file
+    let scene_file = File::open("scenes/default.yml").expect("failed to open scene file");
+    let scene = serde_yaml::from_reader(scene_file).expect("failed to parse scene file");
 
     // Render scene to an image, save it to a file
     render(&scene)
@@ -45,10 +50,12 @@ pub fn render(scene: &Scene) -> DynamicImage {
     // TODO: efficiently load raw image from transmuted buffer here, instead of rebuilding the
     // image from the generated pixelmap pixel-by-pixel
 
+    let camera = scene.camera;
+
     // Create a pixelmap of pixels
-    let pixels: Vec<Rgba<u8>> = (0..scene.width * scene.height)
+    let pixels: Vec<Rgba<u8>> = (0..camera.pixels())
         .into_par_iter()
-        .map(|i| (i / scene.height, i % scene.height))
+        .map(|i| (i / scene.camera.height, i % scene.camera.height))
         .map(|(x, y)| {
             let ray = Ray::new_prime(x, y, scene);
             cast_ray(scene, &ray, 0).to_rgba()
@@ -59,9 +66,15 @@ pub fn render(scene: &Scene) -> DynamicImage {
     pixels
         .into_iter()
         .enumerate()
-        .map(|(i, pixel)| ((i as u32) / scene.height, (i as u32) % scene.height, pixel))
+        .map(|(i, pixel)| {
+            (
+                (i as u32) / camera.height,
+                (i as u32) % camera.height,
+                pixel,
+            )
+        })
         .fold(
-            DynamicImage::new_rgb8(scene.width, scene.height),
+            DynamicImage::new_rgb8(camera.width, camera.height),
             |mut image, (x, y, pixel)| {
                 image.put_pixel(x, y, pixel);
                 image
