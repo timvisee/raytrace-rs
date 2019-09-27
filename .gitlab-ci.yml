@@ -3,6 +3,7 @@ image: "rust:slim"
 stages:
   - check
   - build
+  - test
 
 variables:
   RUST_VERSION: stable
@@ -52,3 +53,13 @@ build:
     - check-stable
   script:
     - cargo build --release --verbose
+
+# Test using Rust stable
+test:
+  stage: test
+  needs:
+    - check-stable
+  script:
+    - cargo build --release
+    - ./target/release/raytrace-rs --help
+    - ./target/release/raytrace-rs scenes/default.yml render.png
