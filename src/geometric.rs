@@ -47,7 +47,7 @@ impl Intersectable for Plane {
         let denom = normal.dot(&ray.direction);
         if denom > 1e-6 {
             let v = self.center - ray.origin;
-            let distance = v.dot(normal) / denom;
+            let distance = v.dot(&normal) / denom;
             if distance >= 0.0 {
                 return Some(distance);
             }
@@ -68,19 +68,9 @@ pub struct Sphere {
     pub material: Material,
 }
 
-impl Default for Sphere {
-    fn default() -> Self {
-        Self {
-            center: Point3::new(0.0, 0.0, -5.0),
-            radius: 1.0,
-            material: Material::default(),
-        }
-    }
-}
-
 impl Intersectable for Sphere {
     fn intersect(&self, ray: &Ray) -> Option<f64> {
-        let l = self.center - ray.origin;
+        let l: Vector3 = self.center - ray.origin;
         let adj = l.dot(&ray.direction);
         let d2 = l.dot(&l) - (adj * adj);
         let radius2 = self.radius * self.radius;
@@ -92,11 +82,15 @@ impl Intersectable for Sphere {
         let t1 = adj + thc;
 
         if t0 < 0.0 && t1 < 0.0 {
-            return None;
+            None
+        } else if t0 < 0.0 {
+            Some(t1)
+        } else if t1 < 0.0 {
+            Some(t0)
+        } else {
+            let distance = if t0 < t1 { t0 } else { t1 };
+            Some(distance)
         }
-
-        let distance = if t0 < t1 { t0 } else { t1 };
-        Some(distance)
     }
 
     fn surface_normal(&self, point: &Point3) -> Vector3 {

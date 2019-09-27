@@ -3,8 +3,9 @@ use std::ops::{Add, Mul};
 use image::Rgba;
 
 lazy_static! {
-    /// The color black.
     pub static ref BLACK: Color = Color::new(0.0, 0.0, 0.0);
+    pub static ref GRAY: Color = Color::new(0.5, 0.5, 0.5);
+    pub static ref WHITE: Color = Color::new(1.0, 1.0, 1.0);
 }
 
 /// An RGB color.
@@ -78,16 +79,6 @@ impl Add for Color {
             r: self.r + other.r,
             g: self.g + other.g,
             b: self.b + other.b,
-        }
-    }
-}
-
-impl Default for Color {
-    fn default() -> Self {
-        Self {
-            r: 0.5,
-            g: 0.5,
-            b: 0.5,
         }
     }
 }
