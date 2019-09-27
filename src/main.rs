@@ -16,7 +16,7 @@ use std::time::Duration;
 
 use clap::{App, Arg};
 use image::{DynamicImage, GenericImage, Rgba};
-use notify::{RecursiveMode, Watcher};
+use notify::{DebouncedEvent, RecursiveMode, Watcher};
 use rayon::prelude::*;
 use serde_yaml;
 
@@ -74,7 +74,7 @@ fn main() {
             "Invalid scene file, not an existing file: '{}'",
             scene_path.to_str().unwrap_or("?"),
         );
-        process::exit(1);
+        process::exit(1)
     }
 
     // Validate render output file
@@ -84,39 +84,49 @@ fn main() {
             "Invalid output file, is an existing directory: '{}'",
             output_path.to_str().unwrap_or("?"),
         );
-        process::exit(1);
+        process::exit(1)
     }
 
     // Check whether to open and watch
     let mut open = matches.is_present("open");
     let watch = matches.is_present("watch");
 
-    // Do not watch, render a single time and quit
-    if !watch {
-        run(open, scene_path.as_path(), output_path.as_path());
-        return;
-    }
-
-    // Create scene file watcher, with channel to receive events
-    let (tx, rx) = channel();
-    let mut watcher = notify::raw_watcher(tx).expect("failed to create file watcher");
-    watcher
-        .watch(&scene_path, RecursiveMode::NonRecursive)
-        .expect("failed to configure watcher for scene file changes");
-
-    // Keep rendering for each scene file change
     loop {
         // Render the scene
         run(open, &scene_path, &output_path);
 
+        // Do not watch, render a single time and quit
+        if !watch {
+            break;
+        }
+
         // Wait for scene file change
-        let event = rx.recv().expect("failed to watch scene file for changes");
-        eprintln!("EVENT: {:?}", event);
+        wait_on_change(&scene_path);
 
         // Do not open a second time
         open = false;
-
         eprintln!("");
+    }
+}
+
+/// Wait for a given file to change.
+///
+/// This function blocks, until the given file is changed.
+fn wait_on_change(path: &Path) {
+    // Create scene file watcher, with channel to receive events
+    let (tx, rx) = channel();
+    let mut watcher =
+        notify::watcher(tx, Duration::from_secs(1)).expect("failed to create file watcher");
+    watcher
+        .watch(&path, RecursiveMode::NonRecursive)
+        .expect("failed to configure watcher for file changes");
+
+    // Wait for scene file change
+    loop {
+        match rx.recv().expect("failed to watch file for changes") {
+            DebouncedEvent::Write(_) => break,
+            _ => {}
+        }
     }
 }
 
