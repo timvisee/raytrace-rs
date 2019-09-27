@@ -5,8 +5,12 @@ use crate::color::Color;
 use crate::math::{Point3, Vector3};
 
 #[derive(Copy, Clone, Debug, Deserialize)]
+#[serde(tag = "type", rename_all = "lowercase")]
 pub enum Light {
+    /// A directional light.
     Directional(DirectionalLight),
+
+    /// A spherical point light.
     Spherical(SphericalLight),
 }
 
@@ -45,6 +49,7 @@ impl Light {
     }
 }
 
+/// A directional light.
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct DirectionalLight {
     pub direction: Vector3,
@@ -52,6 +57,7 @@ pub struct DirectionalLight {
     pub intensity: f32,
 }
 
+/// A spherical point light.
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct SphericalLight {
     pub position: Point3,

@@ -1,24 +1,25 @@
-use crate::color::{Color, WHITE};
+use crate::color::Color;
 
-lazy_static! {
-    pub static ref AIR: Material = Material::build().color(*WHITE).albedo(0.0).build().unwrap();
-    pub static ref WATER: Material = Material::build().color(*WHITE).albedo(0.5).build().unwrap();
-    pub static ref GLASS: Material = Material::build()
-        .color(*WHITE)
-        .albedo(0.18)
-        .surface(Surface::Transparent {
-            index: 1.5,
-            transparency: 1.0,
-        })
-        .build()
-        .unwrap();
-    pub static ref METAL: Material = Material::build()
-        .color(Color::new(0.5, 0.5, 0.5))
-        .albedo(0.25)
-        .surface(Surface::Specular { reflectivity: 0.7 })
-        .build()
-        .unwrap();
-}
+// TODO: use some set of predefined materials
+// lazy_static! {
+//     pub static ref AIR: Material = Material::build().color(*WHITE).albedo(0.0).build().unwrap();
+//     pub static ref WATER: Material = Material::build().color(*WHITE).albedo(0.5).build().unwrap();
+//     pub static ref GLASS: Material = Material::build()
+//         .color(*WHITE)
+//         .albedo(0.18)
+//         .surface(Surface::Transparent {
+//             index: 1.5,
+//             transparency: 1.0,
+//         })
+//         .build()
+//         .unwrap();
+//     pub static ref METAL: Material = Material::build()
+//         .color(Color::new(0.5, 0.5, 0.5))
+//         .albedo(0.25)
+//         .surface(Surface::Specular { reflectivity: 0.7 })
+//         .build()
+//         .unwrap();
+// }
 
 /// Material type for an entity.
 #[derive(Copy, Clone, Debug, Deserialize, Builder)]
@@ -53,6 +54,7 @@ impl Default for Material {
 
 /// Surface type for a material.
 #[derive(Copy, Clone, Debug, Deserialize)]
+#[serde(tag = "type", rename_all = "lowercase")]
 pub enum Surface {
     /// A diffuse surface.
     Diffuse,

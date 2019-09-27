@@ -34,8 +34,10 @@ pub const BIAS: f64 = 1e-13;
 
 fn main() {
     // Load scene from file
+    eprintln!("Loading scene from file...");
     let scene_file = File::open("scenes/default.yml").expect("failed to open scene file");
     let scene = serde_yaml::from_reader(scene_file).expect("failed to parse scene file");
+    eprintln!("Scene loaded");
 
     // Render scene to an image, save it to a file
     render(&scene)

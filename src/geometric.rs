@@ -2,8 +2,12 @@ use crate::material::Material;
 use crate::math::{Intersectable, Point3, Ray, Vector3};
 
 #[derive(Copy, Clone, Debug, Deserialize)]
+#[serde(tag = "type", rename_all = "lowercase")]
 pub enum Entity {
+    /// A plane entity.
     Plane(Plane),
+
+    /// A spherical entity.
     Sphere(Sphere),
 }
 
