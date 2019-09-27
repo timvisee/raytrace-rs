@@ -6,7 +6,6 @@ edition = "2018"
 
 [dependencies]
 clap = "2.33"
-derive_builder = "0.7"
 image = "0.22"
 lazy_static = "1.4"
 nalgebra = { version = "0.18", features = ["serde-serialize"] }

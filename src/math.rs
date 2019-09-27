@@ -66,15 +66,6 @@ impl Ray {
         )
     }
 
-    /// Reflect this ray, based on the given `normal` at the given hit `point`.
-    pub fn reflect(&self, normal: &Vector3, point: Point3) -> Self {
-        // TODO: create unit test for this
-        Self::new(
-            point,
-            self.direction - 2.0 * self.direction.dot(normal) * normal,
-        )
-    }
-
     /// Create a reflection ray.
     ///
     /// Used to create a propegating ray that is reflected on a surface.

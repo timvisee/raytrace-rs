@@ -22,8 +22,7 @@ use crate::color::Color;
 // }
 
 /// Material type for an entity.
-#[derive(Copy, Clone, Debug, Deserialize, Builder)]
-#[builder(default)]
+#[derive(Copy, Clone, Debug, Deserialize)]
 pub struct Material {
     /// Base material color.
     pub color: Color,
@@ -34,23 +33,6 @@ pub struct Material {
     /// Material surface type.
     #[serde(default)]
     pub surface: Surface,
-}
-
-impl Material {
-    /// Material builder.
-    pub fn build() -> MaterialBuilder {
-        MaterialBuilder::default()
-    }
-}
-
-impl Default for Material {
-    fn default() -> Self {
-        Self {
-            color: Color::new(1.0, 0.4, 0.0),
-            albedo: 0.5, // 0.25, 0.18
-            surface: Surface::Diffuse,
-        }
-    }
 }
 
 /// Surface type for a material.
