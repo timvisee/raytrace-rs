@@ -15,6 +15,7 @@ use std::time::Duration;
 use clap::{App, Arg};
 use notify::{DebouncedEvent, RecursiveMode, Watcher};
 use serde_yaml;
+use took::Timer;
 
 mod color;
 mod geometric;
@@ -23,9 +24,6 @@ mod material;
 mod math;
 mod render;
 mod scene;
-mod timer;
-
-use timer::Timer;
 
 /// Application entrypoint.
 fn main() {
@@ -148,7 +146,7 @@ fn render(open: bool, scene_path: &Path, output_path: &Path) {
             return;
         }
     }
-    eprintln!("Rendering finished, took {}", timer.format_elapsed());
+    timer.took().describe("Rendering finished,");
 
     // Open render file
     if open {

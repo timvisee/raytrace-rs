@@ -11,11 +11,11 @@ This program loads a scene from a YAML file, and renders it to an image file.
 ![Screenshot balls scene](screenshots/balls.png)
 ![Screenshot glass scene](screenshots/glass.png)
 
-I've heavily used [Scratchapixel][scratchapixel] as resource for an ray tracer
+I've heavily used [Scratchapixel][scratchapixel] as resource for a ray tracer
 implementation.
 
 ## Usage
-Make sure you have `git` and Rust (through [rustup][rustup] installed).
+Make sure you have `git` and Rust (via [rustup][rustup]) installed.
 
 ```bash
 # Clone git repository
