@@ -13,185 +13,176 @@ camera:
 # Scene entities
 entities:
   - type: sphere
-    center: [2.0, 2.0, -8.0]
-    radius: 1.0
+    center: [2, 2, -8]
+    radius: 1
     material:
-      color: [1.0, 0.4, 0.0]
+      color: [1, 0.4, 0]
       albedo: 0.5
       surface:
         type: diffuse
   - type: sphere
-    center: [2.0, 0.0, -8.0]
-    radius: 1.0
+    center: [2, 0, -8]
+    radius: 1
     material:
-      color: [1.0, 0.4, 0.0]
+      color: [1, 0.4, 0]
       albedo: 0.5
       surface:
         type: diffuse
   - type: sphere
-    center: [2.0, -2.0, -8.0]
-    radius: 1.0
+    center: [2, -2, -8]
+    radius: 1
     material:
-      color: [1.0, 0.4, 0.0]
+      color: [1, 0.4, 0]
       albedo: 0.5
       surface:
         type: diffuse
   - type: sphere
-    center: [0.0, 2.0, -8.0]
-    radius: 1.0
+    center: [0, 2, -8]
+    radius: 1
     material:
-      color: [1.0, 0.4, 0.0]
+      color: [1, 0.4, 0]
       albedo: 0.5
       surface:
         type: diffuse
   - type: sphere
-    center: [0.0, 0.0, -8.0]
-    radius: 1.0
+    center: [0, 0, -8]
+    radius: 1
     material:
-      color: [1.0, 0.4, 0.0]
+      color: [1, 0.4, 0]
       albedo: 0.5
       surface:
         type: diffuse
   - type: sphere
-    center: [0.0, -2.0, -8.0]
-    radius: 1.0
+    center: [0, -2, -8]
+    radius: 1
     material:
-      color: [1.0, 0.4, 0.0]
+      color: [1, 0.4, 0]
       albedo: 0.5
       surface:
         type: diffuse
   - type: sphere
-    center: [-2.0, 2.0, -8.0]
-    radius: 1.0
+    center: [-2, 2, -8]
+    radius: 1
     material:
-      color: [1.0, 0.4, 0.0]
+      color: [1, 0.4, 0]
       albedo: 0.5
       surface:
         type: diffuse
   - type: sphere
-    center: [-2.0, 0.0, -8.0]
-    radius: 1.0
+    center: [-2, 0, -8]
+    radius: 1
     material:
-      color: [1.0, 0.4, 0.0]
+      color: [1, 0.4, 0]
       albedo: 0.5
       surface:
         type: diffuse
   - type: sphere
-    center: [-2.0, -2.0, -8.0]
-    radius: 1.0
+    center: [-2, -2, -8]
+    radius: 1
     material:
-      color: [1.0, 0.4, 0.0]
+      color: [1, 0.4, 0]
       albedo: 0.5
       surface:
         type: diffuse
 
   # Glass balls
   - type: sphere
-    center: [2.0, 2.0, -4.0]
+    center: [2, 2, -4]
     radius: 0.9
     material:
-      color: [1.0, 1.0, 1.0]
+      color: [1, 1, 1]
       albedo: 0.18
       surface:
         type: transparent
         index: 1.5
-        transparency: 1.0
+        transparency: 1
   - type: sphere
-    center: [2.0, 0.0, -4.0]
+    center: [2, 0, -4]
     radius: 0.9
     material:
-      color: [1.0, 1.0, 1.0]
+      color: [1, 1, 1]
       albedo: 0.18
       surface:
         type: transparent
         index: 1.5
-        transparency: 1.0
+        transparency: 1
   - type: sphere
-    center: [2.0, -2.0, -4.0]
+    center: [2, -2, -4]
     radius: 0.9
     material:
-      color: [1.0, 1.0, 1.0]
+      color: [1, 1, 1]
       albedo: 0.18
       surface:
         type: transparent
         index: 1.5
-        transparency: 1.0
+        transparency: 1
   - type: sphere
-    center: [0.0, 2.0, -4.0]
+    center: [0, 2, -4]
     radius: 0.9
     material:
-      color: [1.0, 1.0, 1.0]
+      color: [1, 1, 1]
       albedo: 0.18
       surface:
         type: transparent
         index: 1.5
-        transparency: 1.0
+        transparency: 1
   - type: sphere
-    center: [0.0, 0.0, -4.0]
+    center: [0, 0, -4]
     radius: 0.9
     material:
-      color: [1.0, 1.0, 1.0]
+      color: [1, 1, 1]
       albedo: 0.18
       surface:
         type: transparent
         index: 1.5
-        transparency: 1.0
+        transparency: 1
   - type: sphere
-    center: [0.0, -2.0, -4.0]
+    center: [0, -2, -4]
     radius: 0.9
     material:
-      color: [1.0, 1.0, 1.0]
+      color: [1, 1, 1]
       albedo: 0.18
       surface:
         type: transparent
         index: 1.5
-        transparency: 1.0
+        transparency: 1
   - type: sphere
-    center: [-2.0, 2.0, -4.0]
+    center: [-2, 2, -4]
     radius: 0.9
     material:
-      color: [1.0, 1.0, 1.0]
+      color: [1, 1, 1]
       albedo: 0.18
       surface:
         type: transparent
         index: 1.5
-        transparency: 1.0
+        transparency: 1
   - type: sphere
-    center: [-2.0, 0.0, -4.0]
+    center: [-2, 0, -4]
     radius: 0.9
     material:
-      color: [1.0, 1.0, 1.0]
+      color: [1, 1, 1]
       albedo: 0.18
       surface:
         type: transparent
         index: 1.5
-        transparency: 1.0
+        transparency: 1
   - type: sphere
-    center: [-2.0, -2.0, -4.0]
+    center: [-2, -2, -4]
     radius: 0.9
     material:
-      color: [1.0, 1.0, 1.0]
+      color: [1, 1, 1]
       albedo: 0.18
       surface:
         type: transparent
         index: 1.5
-        transparency: 1.0
+        transparency: 1
 
   # Background plane
   - type: plane
-    center:
-      - 0.0
-      - 0.0
-      - -10.0
-    normal:
-      - 0.0
-      - 0.0
-      - -1.0
+    center: [0, 0, -10]
+    normal: [0, 0, -1]
     material:
-      color:
-        - 0.4
-        - 0.4
-        - 1.0
+      color: [0.4, 0.4, 1]
       albedo: 0.5
       surface:
         type: diffuse
@@ -199,32 +190,14 @@ entities:
 # Scene lights
 lights:
   - type: spherical
-    position:
-      - 0.0
-      - 0.0
-      - -5.0
-    color:
-      - 1.0
-      - 1.0
-      - 1.0
-    intensity: 200.0
+    position: [0, 0, -5]
+    color: [1, 1, 1]
+    intensity: 200
   - type: spherical
-    position:
-      - 6.5
-      - 0.0
-      - -6
-    color:
-      - 1.0
-      - 0.4
-      - 0.6
-    intensity: 1000.0
+    position: [6.5, 0, -6]
+    color: [1, 0.4, 0.6]
+    intensity: 1000
   - type: spherical
-    position:
-      - -6.5
-      - 0.0
-      - -6
-    color:
-      - 0.4
-      - 1.0
-      - 0.6
-    intensity: 1000.0
+    position: [-6.5, 0, -6]
+    color: [0.4, 1, 0.6]
+    intensity: 1000
