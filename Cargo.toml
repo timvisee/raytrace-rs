@@ -8,9 +8,9 @@ edition = "2018"
 clap = "2.33"
 image = "0.22"
 lazy_static = "1.4"
-nalgebra = { version = "0.18", features = ["serde-serialize"] }
+nalgebra = { version = "0.19", features = ["serde-serialize"] }
 notify = "4.0"
-num_cpus = "1.10"
+num_cpus = "1.11"
 open = "1.3"
 rayon = "1.2"
 serde = "1.0"
