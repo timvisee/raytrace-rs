@@ -3,6 +3,7 @@ use std::f32::consts::PI;
 use image::{DynamicImage, GenericImage, Rgba};
 use rayon::prelude::*;
 
+use crate::algebra::Vector;
 use crate::color::{Color, BLACK};
 use crate::geometric::Entity;
 use crate::material::Surface;
@@ -81,14 +82,14 @@ fn observe_intersection(
     depth: u32,
 ) -> Color {
     let hit = ray.origin + (ray.direction * intersection.distance);
-    let normal = intersection.entity.surface_normal(&hit);
+    let normal = intersection.entity.surface_normal(hit);
 
     let material = intersection.entity.material();
     match material.surface {
-        Surface::Diffuse => shade_diffuse(scene, intersection.entity, &hit, normal),
+        Surface::Diffuse => shade_diffuse(scene, intersection.entity, hit, normal),
         Surface::Specular { reflectivity } => {
-            let mut color = shade_diffuse(scene, intersection.entity, &hit, normal);
-            let reflection_ray = Ray::create_reflection(&normal, &ray.direction, hit, scene.bias);
+            let mut color = shade_diffuse(scene, intersection.entity, hit, normal);
+            let reflection_ray = Ray::create_reflection(normal, ray.direction, hit, scene.bias);
             color = color * (1.0 - reflectivity);
             color = color + (observe_ray(scene, &reflection_ray, depth + 1) * reflectivity);
             color
@@ -98,7 +99,7 @@ fn observe_intersection(
             transparency,
         } => {
             let mut refraction_color = *BLACK;
-            let kr = fresnel(&ray.direction, &normal, index) as f32;
+            let kr = fresnel(ray.direction, normal, index) as f32;
             // TODO: textured coordinates:
             // let surface_color = material
             //     .coloration
@@ -112,7 +113,7 @@ fn observe_intersection(
                 refraction_color = observe_ray(scene, &transmission_ray, depth + 1);
             }
 
-            let reflection_ray = Ray::create_reflection(&normal, &ray.direction, hit, scene.bias);
+            let reflection_ray = Ray::create_reflection(normal, ray.direction, hit, scene.bias);
             let reflection_color = observe_ray(scene, &reflection_ray, depth + 1);
             let mut color = reflection_color * kr + refraction_color * (1.0 - kr);
             color = color * transparency * surface_color;
@@ -126,13 +127,13 @@ fn observe_intersection(
 /// Calculate the observed color at a diffuse surface point.
 ///
 /// The hit `entity`, specific `hit` and entity surface normal must be given.
-fn shade_diffuse(scene: &Scene, entity: &Entity, hit: &Point3, surface_normal: Vector3) -> Color {
+fn shade_diffuse(scene: &Scene, entity: &Entity, hit: Vector, surface_normal: Vector) -> Color {
     // TODO: textured coordinates:
     // let texture_coords = entity.texture_coords(&hit);
 
     let mut color = *BLACK;
     for light in &scene.lights {
-        let direction_to_light = light.direction_from(&hit);
+        let direction_to_light = light.direction_from(hit);
 
         let shadow_ray = Ray {
             origin: hit + (surface_normal * scene.bias),
@@ -145,7 +146,7 @@ fn shade_diffuse(scene: &Scene, entity: &Entity, hit: &Point3, surface_normal: V
         let light_intensity = if in_light { light.intensity(hit) } else { 0.0 };
         let material = entity.material();
         let light_power =
-            (surface_normal.dot(&direction_to_light) as f32).max(0.0) * light_intensity;
+            (surface_normal.dot(direction_to_light) as f32).max(0.0) * light_intensity;
         let light_reflected = material.albedo / PI;
 
         let light_color = light.color() * light_power * light_reflected;
@@ -159,8 +160,8 @@ fn shade_diffuse(scene: &Scene, entity: &Entity, hit: &Point3, surface_normal: V
 }
 
 /// Calcualte fresnel lens value.
-fn fresnel(incident: &Vector3, normal: &Vector3, index: f32) -> f64 {
-    let i_dot_n = incident.dot(&normal);
+fn fresnel(incident: Vector, normal: Vector, index: f32) -> f64 {
+    let i_dot_n = incident.dot(normal);
     let mut eta_i = 1.0;
     let mut eta_t = f64::from(index);
     if i_dot_n > 0.0 {

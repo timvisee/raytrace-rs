@@ -17,6 +17,7 @@ use notify::{DebouncedEvent, RecursiveMode, Watcher};
 use serde_yaml;
 use took::Timer;
 
+pub mod algebra;
 mod color;
 mod geometric;
 mod light;

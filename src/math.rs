@@ -1,45 +1,17 @@
+use crate::algebra::{Identity, Vector};
 use crate::geometric::Entity;
 use crate::scene::Scene;
-
-/// The unit type we're using in coordinate space for this ray tracer.
-type Unit = f64;
-
-/// 3 dimentional vector type used in this ray tracer.
-pub type Vector3 = nalgebra::base::Vector3<Unit>;
-
-/// 3 dimentional point type used in this ray tracer.
-pub type Point3 = nalgebra::geometry::Point3<Unit>;
-
-/// Type that has an identity value.
-///
-/// Will be the zero point for points and vectors.
-trait Identity {
-    /// Construct an identity variant of this type.
-    fn identity() -> Self;
-}
-
-impl Identity for Vector3 {
-    fn identity() -> Self {
-        Vector3::new(0.0, 0.0, 0.0)
-    }
-}
-
-impl Identity for Point3 {
-    fn identity() -> Self {
-        Point3::new(0.0, 0.0, 0.0)
-    }
-}
 
 /// A 3 dimentoinal ray.
 #[derive(Copy, Clone, Debug)]
 pub struct Ray {
-    pub origin: Point3,
-    pub direction: Vector3,
+    pub origin: Vector,
+    pub direction: Vector,
 }
 
 impl Ray {
     /// Create a new ray from the given `origin`, going into `direction`.
-    pub fn new(origin: Point3, direction: Vector3) -> Self {
+    pub fn new(origin: Vector, direction: Vector) -> Self {
         Self { origin, direction }
     }
 
@@ -61,8 +33,8 @@ impl Ray {
 
         // Construct the row
         Self::new(
-            Point3::identity(),
-            Vector3::new(sensor_x, sensor_y, -1.0).normalize(),
+            Vector::identity(),
+            Vector(sensor_x, sensor_y, -1.0).normalize(),
         )
     }
 
@@ -78,14 +50,14 @@ impl Ray {
     /// - `intersection`: the intersection point on the entity we hit.
     /// - `bias`: the reflection bias to mitigate float precision errors.
     pub fn create_reflection(
-        normal: &Vector3,
-        incident: &Vector3,
-        intersection: Point3,
+        normal: Vector,
+        incident: Vector,
+        intersection: Vector,
         bias: f64,
     ) -> Self {
         Self::new(
             intersection,
-            incident - (2.0 * incident.dot(&normal) * normal),
+            incident - (normal * incident.dot(normal) * 2.0),
         )
         .bias(bias)
     }
@@ -104,16 +76,16 @@ impl Ray {
     /// - `index`: the refractive index of the surface.
     /// - `bias`: the reflection bias to mitigate float precision errors.
     pub fn create_transmission(
-        normal: Vector3,
-        incident: Vector3,
-        intersection: Point3,
+        normal: Vector,
+        incident: Vector,
+        intersection: Vector,
         index: f32,
         bias: f64,
     ) -> Option<Self> {
         let mut ref_n = normal;
         let mut eta_t = f64::from(index);
         let mut eta_i = 1.0;
-        let mut i_dot_n = incident.dot(&normal);
+        let mut i_dot_n = incident.dot(normal);
         if i_dot_n < 0.0 {
             // Outside the surface
             i_dot_n = -i_dot_n;
@@ -131,7 +103,7 @@ impl Ray {
         } else {
             Some(Self::new(
                 intersection + (ref_n * -bias),
-                (incident + i_dot_n * ref_n) * eta - ref_n * k.sqrt(),
+                (ref_n * i_dot_n + incident) * eta - ref_n * k.sqrt(),
             ))
         }
     }
@@ -168,5 +140,5 @@ pub trait Intersectable {
     fn intersect(&self, ray: &Ray) -> Option<f64>;
 
     /// Get the surface normal at the given surface point.
-    fn surface_normal(&self, point: &Point3) -> Vector3;
+    fn surface_normal(&self, point: Vector) -> Vector;
 }

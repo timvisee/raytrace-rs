@@ -1,5 +1,6 @@
+use crate::algebra::Vector;
 use crate::material::Material;
-use crate::math::{Intersectable, Point3, Ray, Vector3};
+use crate::math::{Intersectable, Ray};
 
 #[derive(Copy, Clone, Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "lowercase")]
@@ -29,7 +30,7 @@ impl Intersectable for Entity {
         }
     }
 
-    fn surface_normal(&self, point: &Point3) -> Vector3 {
+    fn surface_normal(&self, point: Vector) -> Vector {
         match self {
             Entity::Sphere(ref s) => s.surface_normal(point),
             Entity::Plane(ref p) => p.surface_normal(point),
@@ -41,10 +42,10 @@ impl Intersectable for Entity {
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct Plane {
     /// Plane center in world space.
-    pub center: Point3,
+    pub center: Vector,
 
     /// Plane normal.
-    pub normal: Vector3,
+    pub normal: Vector,
 
     /// Plane material.
     pub material: Material,
@@ -52,11 +53,11 @@ pub struct Plane {
 
 impl Intersectable for Plane {
     fn intersect(&self, ray: &Ray) -> Option<f64> {
-        let normal = &self.normal;
-        let denom = normal.dot(&ray.direction);
+        let normal = self.normal;
+        let denom = normal.dot(ray.direction);
         if denom > 1e-6 {
             let v = self.center - ray.origin;
-            let distance = v.dot(&normal) / denom;
+            let distance = v.dot(normal) / denom;
             if distance >= 0.0 {
                 return Some(distance);
             }
@@ -64,7 +65,7 @@ impl Intersectable for Plane {
         None
     }
 
-    fn surface_normal(&self, _: &Point3) -> Vector3 {
+    fn surface_normal(&self, _: Vector) -> Vector {
         -self.normal
     }
 }
@@ -73,7 +74,7 @@ impl Intersectable for Plane {
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct Sphere {
     /// Sphere center in world space.
-    pub center: Point3,
+    pub center: Vector,
 
     /// Sphere radius.
     #[serde(default = "one")]
@@ -85,9 +86,9 @@ pub struct Sphere {
 
 impl Intersectable for Sphere {
     fn intersect(&self, ray: &Ray) -> Option<f64> {
-        let l: Vector3 = self.center - ray.origin;
-        let adj = l.dot(&ray.direction);
-        let d2 = l.dot(&l) - (adj * adj);
+        let l: Vector = self.center - ray.origin;
+        let adj = l.dot(ray.direction);
+        let d2 = l.dot(l) - (adj * adj);
         let radius2 = self.radius * self.radius;
         if d2 > radius2 {
             return None;
@@ -108,7 +109,7 @@ impl Intersectable for Sphere {
         }
     }
 
-    fn surface_normal(&self, point: &Point3) -> Vector3 {
+    fn surface_normal(&self, point: Vector) -> Vector {
         (point - self.center).normalize()
     }
 }
