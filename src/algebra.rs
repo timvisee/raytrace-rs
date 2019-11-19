@@ -9,16 +9,10 @@ type Unit = f64;
 pub struct Vector(pub Unit, pub Unit, pub Unit);
 
 impl Vector {
-    /// Vector with absolute values.
-    #[inline]
-    pub fn abs(self) -> Self {
-        Vector(self.0.abs(), self.1.abs(), self.2.abs())
-    }
-
     /// Normalize this vector to a magnitude of 1.
     #[inline]
     pub fn normalize(self) -> Self {
-        self / self.abs()
+        self / self.magnitude()
     }
 
     /// Dot product.
@@ -88,15 +82,15 @@ impl Mul<Unit> for Vector {
     }
 }
 
-impl Div for Vector {
+impl Div<Unit> for Vector {
     type Output = Self;
 
-    fn div(self, rhs: Self) -> Self::Output {
-        Vector(
-            if rhs.0 != 0f64 { self.0 / rhs.0 } else { 0f64 },
-            if rhs.1 != 0f64 { self.1 / rhs.1 } else { 0f64 },
-            if rhs.1 != 0f64 { self.1 / rhs.1 } else { 0f64 },
-        )
+    fn div(self, rhs: Unit) -> Self::Output {
+        if rhs != 0.0 {
+            Vector(self.0 / rhs, self.1 / rhs, self.2 / rhs)
+        } else {
+            Vector::identity()
+        }
     }
 }
 
