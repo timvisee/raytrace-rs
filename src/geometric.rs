@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::algebra::Vector;
 use crate::material::Material;
 use crate::math::{Intersectable, Ray};
@@ -117,6 +119,81 @@ impl Intersectable for Sphere {
 /// Returns one.
 ///
 /// Helper function for serde defaults.
-fn one() -> f64 {
+const fn one() -> f64 {
     1.0
+}
+
+/// Represents a triangle.
+pub struct Triangle {
+    positions: [Vector; 3],
+    normals: [Vector; 3],
+    // texcoords: [Point; 3],
+}
+
+impl Triangle {
+    /// Constructor.
+    pub fn new(positions: [Vector; 3], normals: [Vector; 3]) -> Self {
+        Self { positions, normals }
+    }
+}
+
+pub struct Mesh {
+    triangles: Vec<Triangle>,
+}
+
+impl Mesh {
+    pub fn new(positions: Vec<Vector>, normals: Vec<Vector>, indices: Vec<u32>) -> Self {
+        let triangles = indices
+            .chunks(3)
+            .map(|i| {
+                Triangle::new(
+                    [
+                        positions[i[0] as usize],
+                        positions[i[1] as usize],
+                        positions[i[2] as usize],
+                    ],
+                    [
+                        normals[i[0] as usize],
+                        normals[i[1] as usize],
+                        normals[i[2] as usize],
+                    ],
+                )
+            })
+            .collect();
+        Self { triangles }
+    }
+
+    pub fn load_obj(path: &Path) -> Result<Vec<Mesh>, &str> {
+        // Load the obj file
+        let models = match tobj::load_obj(path) {
+            Ok((models, _)) => models,
+            Err(err) => return Err("failed to load obj file"),
+        };
+
+        Ok(models
+            .into_iter()
+            .map(|m| {
+                println!("Loading model {}...", m.name);
+                let mesh = m.mesh;
+
+                println!("{} has {} triangles", m.name, mesh.indices.len() / 3);
+                let positions = mesh
+                    .positions
+                    .chunks(3)
+                    .map(|i| Vector(i[0] as f64, i[1] as f64, i[2] as f64))
+                    .collect();
+                let normals = mesh
+                    .normals
+                    .chunks(3)
+                    .map(|i| Vector(i[0] as f64, i[1] as f64, i[2] as f64))
+                    .collect();
+                // let texcoords = mesh
+                //     .texcoords
+                //     .chunks(2)
+                //     .map(|i| Point::new(i[0], i[1]))
+                //     .collect();
+                Mesh::new(positions, normals, mesh.indices)
+            })
+            .collect())
+    }
 }
