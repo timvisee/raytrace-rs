@@ -13,6 +13,7 @@ camera:
 # Scene entities
 entities:
   - type: model
+    path: "./scenes/monkey.obj"
     position: [0, 0, -5]
     material:
       color: [1, 0.4, 0]
