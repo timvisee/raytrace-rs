@@ -155,8 +155,42 @@ impl Triangle {
 
 impl Intersectable for Triangle {
     fn intersect(&self, ray: &Ray) -> Option<f64> {
-        // TODO: implement this!
-        return None;
+        const EPSILON: f64 = 0.000_000_1;
+
+        let vertex0: Vector = self.positions[0];
+        let vertex1: Vector = self.positions[1];
+        let vertex2: Vector = self.positions[2];
+        let edge1 = vertex1 - vertex0;
+        let edge2 = vertex2 - vertex0;
+        let h = ray.direction.cross(edge2);
+        let a = edge1.dot(h);
+
+        if a > -EPSILON && a < EPSILON {
+            return None;
+        }
+
+        let f = 1.0 / a;
+        let s = ray.origin - vertex0;
+        let u = f * s.dot(h);
+        if u < 0.0 || u > 1.0 {
+            return None;
+        }
+        let q = s.cross(edge1);
+        let v = f * ray.direction.dot(q);
+
+        if v < 0.0 || u + v > 1.0 {
+            return None;
+        }
+
+        // At this stage we can compute t to find out where the intersection point is on the line.
+        let t = f * edge2.dot(q);
+        if t > EPSILON && t < 1.0 / EPSILON {
+            // ray intersection
+            return Some(t);
+        } else {
+            // This means that there is a line intersection but not a ray intersection
+            return None;
+        }
     }
 
     fn surface_normal(&self, _: Vector) -> Vector {
@@ -213,12 +247,12 @@ impl Mesh {
                 let positions = mesh
                     .positions
                     .chunks(3)
-                    .map(|i| Vector(i[0] as f64, i[1] as f64, i[2] as f64))
+                    .map(|p| Vector(p[0] as f64, p[1] as f64, p[2] as f64))
                     .collect();
                 let normals = mesh
                     .normals
                     .chunks(3)
-                    .map(|i| Vector(i[0] as f64, i[1] as f64, i[2] as f64))
+                    .map(|p| Vector(p[0] as f64, p[1] as f64, p[2] as f64))
                     .collect();
                 // let texcoords = mesh
                 //     .texcoords
@@ -233,8 +267,10 @@ impl Mesh {
 
 impl Intersectable for Mesh {
     fn intersect(&self, ray: &Ray) -> Option<f64> {
-        // TODO: check intersect with bounding box firs
-        None
+        self.triangles
+            .iter()
+            .filter_map(|t| t.intersect(ray))
+            .min_by(|i1, i2| i1.partial_cmp(&i2).unwrap())
     }
 
     fn surface_normal(&self, _: Vector) -> Vector {
@@ -251,7 +287,7 @@ pub struct Model {
 
     /// Model mesh.
     #[serde(default)]
-    pub mesh: Vec<Mesh>,
+    pub meshes: Vec<Mesh>,
 
     /// Model material.
     pub material: Material,
@@ -261,7 +297,7 @@ impl Model {
     /// Load any external resources.
     pub fn load(&mut self) {
         match Mesh::load_obj(&self.path) {
-            Ok(meshes) => self.mesh = meshes,
+            Ok(meshes) => self.meshes = meshes,
             Err(err) => {
                 eprintln!("Failed to load model: {}", err);
             }
