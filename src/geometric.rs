@@ -157,40 +157,71 @@ impl Intersectable for Triangle {
     fn intersect(&self, ray: &Ray) -> Option<f64> {
         const EPSILON: f64 = 0.000_000_1;
 
-        let vertex0: Vector = self.positions[0];
-        let vertex1: Vector = self.positions[1];
-        let vertex2: Vector = self.positions[2];
-        let edge1 = vertex1 - vertex0;
-        let edge2 = vertex2 - vertex0;
-        let h = ray.direction.cross(edge2);
-        let a = edge1.dot(h);
+        let v0: Vector = self.positions[0];
+        let v1: Vector = self.positions[1];
+        let v2: Vector = self.positions[2];
+        // compute plane's normal
+        let v0v1 = v1 - v0;
+        let v0v2 = v2 - v0;
+        // no need to normalize
+        let N = v0v1.cross(v0v2); // N
+        let denom = N.dot(N);
 
-        if a > -EPSILON && a < EPSILON {
-            return None;
+        // Step 1: finding P
+
+        // check if ray and plane are parallel ?
+        let NdotRayDirection = N.dot(ray.direction);
+        if NdotRayDirection.abs() < EPSILON {
+            // almost 0
+            return None; // they are parallel so they don't intersect !
         }
 
-        let f = 1.0 / a;
-        let s = ray.origin - vertex0;
-        let u = f * s.dot(h);
-        if u < 0.0 || u > 1.0 {
-            return None;
-        }
-        let q = s.cross(edge1);
-        let v = f * ray.direction.dot(q);
+        // compute d parameter using equation 2
+        let d = N.dot(v0);
 
-        if v < 0.0 || u + v > 1.0 {
-            return None;
+        // compute t (equation 3)
+        let t = (N.dot(ray.origin) + d) / NdotRayDirection;
+        // check if the triangle is in behind the ray
+        if t < 0.0 {
+            return None; // the triangle is behind
         }
 
-        // At this stage we can compute t to find out where the intersection point is on the line.
-        let t = f * edge2.dot(q);
-        if t > EPSILON && t < 1.0 / EPSILON {
-            // ray intersection
-            return Some(t);
-        } else {
-            // This means that there is a line intersection but not a ray intersection
-            return None;
+        // compute the intersection point using equation 1
+        let P = ray.origin + ray.direction * t;
+
+        // Step 2: inside-outside test
+        let mut C; // vector perpendicular to triangle's plane
+
+        // edge 0
+        let edge0 = v1 - v0;
+        let vp0 = P - v0;
+        C = edge0.cross(vp0);
+        if N.dot(C) < 0.0 {
+            return None; // P is on the right side
         }
+
+        // edge 1
+        let edge1 = v2 - v1;
+        let vp1 = P - v1;
+        C = edge1.cross(vp1);
+        let mut u = N.dot(C);
+        if u < 0.0 {
+            return None; // P is on the right side
+        }
+
+        // edge 2
+        let edge2 = v0 - v2;
+        let vp2 = P - v2;
+        C = edge2.cross(vp2);
+        let mut v = N.dot(C);
+        if v < 0.0 {
+            return None; // P is on the right side;
+        }
+
+        u /= denom;
+        v /= denom;
+
+        return Some(t); // this ray hits the triangle
     }
 
     fn surface_normal(&self, _: Vector) -> Vector {
@@ -312,8 +343,10 @@ impl Model {
 
 impl Intersectable for Model {
     fn intersect(&self, ray: &Ray) -> Option<f64> {
-        // TODO: implement this!
-        None
+        self.meshes
+            .iter()
+            .filter_map(|t| t.intersect(ray))
+            .min_by(|i1, i2| i1.partial_cmp(&i2).unwrap())
     }
 
     fn surface_normal(&self, point: Vector) -> Vector {
