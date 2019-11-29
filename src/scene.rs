@@ -36,6 +36,11 @@ impl Scene {
             })
             .min_by(|i1, i2| i1.distance.partial_cmp(&i2.distance).unwrap())
     }
+
+    /// Load external resources.
+    pub fn load(&mut self) {
+        self.entities.iter_mut().for_each(|e| e.load())
+    }
 }
 
 /// Scene camera configuration.

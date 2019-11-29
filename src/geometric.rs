@@ -23,7 +23,16 @@ impl Entity {
         match self {
             Entity::Sphere(ref s) => s.material,
             Entity::Plane(ref p) => p.material,
-            Entity::Model(ref m) => Material::default(),
+            Entity::Model(ref _m) => Material::default(),
+        }
+    }
+
+    /// Load any external resources.
+    pub fn load(&mut self) {
+        match self {
+            Entity::Sphere(_) => {}
+            Entity::Plane(_) => {}
+            Entity::Model(ref mut m) => m.load(),
         }
     }
 }
@@ -133,13 +142,13 @@ const fn one() -> f64 {
 #[derive(Clone, Debug, Deserialize)]
 pub struct Triangle {
     positions: [Vector; 3],
-    normals: [Vector; 3],
+    normals: Option<[Vector; 3]>,
     // texcoords: [Point; 3],
 }
 
 impl Triangle {
     /// Constructor.
-    pub fn new(positions: [Vector; 3], normals: [Vector; 3]) -> Self {
+    pub fn new(positions: [Vector; 3], normals: Option<[Vector; 3]>) -> Self {
         Self { positions, normals }
     }
 }
@@ -166,29 +175,32 @@ impl Mesh {
         let triangles = indices
             .chunks(3)
             .map(|i| {
-                Triangle::new(
-                    [
-                        positions[i[0] as usize],
-                        positions[i[1] as usize],
-                        positions[i[2] as usize],
-                    ],
-                    [
+                let positions = [
+                    positions[i[0] as usize],
+                    positions[i[1] as usize],
+                    positions[i[2] as usize],
+                ];
+                let normals = if !normals.is_empty() {
+                    Some([
                         normals[i[0] as usize],
                         normals[i[1] as usize],
                         normals[i[2] as usize],
-                    ],
-                )
+                    ])
+                } else {
+                    None
+                };
+                Triangle::new(positions, normals)
             })
             .collect();
 
         Self { triangles }
     }
 
-    pub fn load_obj(path: &Path) -> Result<Vec<Mesh>, &str> {
+    pub fn load_obj<'a, P: AsRef<Path>>(path: P) -> Result<Vec<Mesh>, String> {
         // Load the obj file
-        let models = match tobj::load_obj(path) {
+        let models = match tobj::load_obj(path.as_ref()) {
             Ok((models, _)) => models,
-            Err(err) => return Err("failed to load obj file"),
+            Err(err) => return Err(format!("Failed to load obj file: {}", err)),
         };
 
         Ok(models
@@ -235,12 +247,26 @@ impl Intersectable for Mesh {
 #[derive(Clone, Debug, Deserialize)]
 pub struct Model {
     // TODO: replace this with mesh loaded from file path
-    pub file: String,
+    pub path: String,
+
+    /// Model mesh.
+    #[serde(default)]
+    pub mesh: Vec<Mesh>,
 
     /// Model material.
     pub material: Material,
-    // /// Model mesh.
-    // pub mesh: Mesh,
+}
+
+impl Model {
+    /// Load any external resources.
+    pub fn load(&mut self) {
+        match Mesh::load_obj(&self.path) {
+            Ok(meshes) => self.mesh = meshes,
+            Err(err) => {
+                eprintln!("Failed to load model: {}", err);
+            }
+        }
+    }
 }
 
 impl Intersectable for Model {

@@ -17,6 +17,8 @@ use notify::{DebouncedEvent, RecursiveMode, Watcher};
 use serde_yaml;
 use took::Timer;
 
+use crate::scene::Scene;
+
 pub mod algebra;
 mod color;
 mod geometric;
@@ -121,7 +123,7 @@ fn render(open: bool, scene_path: &Path, output_path: &Path) {
             return;
         }
     };
-    let scene = match serde_yaml::from_reader(scene_file) {
+    let mut scene: Scene = match serde_yaml::from_reader(scene_file) {
         Ok(file) => file,
         Err(err) => {
             eprintln!(
@@ -131,6 +133,7 @@ fn render(open: bool, scene_path: &Path, output_path: &Path) {
             return;
         }
     };
+    scene.load();
 
     // Render scene to an image, save it to a file
     eprintln!("Rendering scene on {} CPU cores...", num_cpus::get());
