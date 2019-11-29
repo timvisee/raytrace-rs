@@ -230,7 +230,8 @@ impl Mesh {
         Self { triangles }
     }
 
-    pub fn load_obj<'a, P: AsRef<Path>>(path: P) -> Result<Vec<Mesh>, String> {
+    /// Load a mesh from an .obj file at the given path.
+    pub fn load_obj<'a, P: AsRef<Path>>(path: P, offset: Vector) -> Result<Vec<Mesh>, String> {
         // Load the obj file
         let models = match tobj::load_obj(path.as_ref()) {
             Ok((models, _)) => models,
@@ -247,7 +248,7 @@ impl Mesh {
                 let positions = mesh
                     .positions
                     .chunks(3)
-                    .map(|p| Vector(p[0] as f64, p[1] as f64, p[2] as f64))
+                    .map(|p| Vector(p[0] as f64, p[1] as f64, p[2] as f64) + offset)
                     .collect();
                 let normals = mesh
                     .normals
@@ -285,6 +286,10 @@ pub struct Model {
     // TODO: replace this with mesh loaded from file path
     pub path: String,
 
+    /// Position of the model in world space.
+    #[serde(default = "Vector::identity")]
+    pub position: Vector,
+
     /// Model mesh.
     #[serde(default)]
     pub meshes: Vec<Mesh>,
@@ -296,7 +301,7 @@ pub struct Model {
 impl Model {
     /// Load any external resources.
     pub fn load(&mut self) {
-        match Mesh::load_obj(&self.path) {
+        match Mesh::load_obj(&self.path, self.position) {
             Ok(meshes) => self.meshes = meshes,
             Err(err) => {
                 eprintln!("Failed to load model: {}", err);
