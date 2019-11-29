@@ -1,10 +1,10 @@
 use std::path::Path;
 
-use crate::algebra::Vector;
+use crate::algebra::{Identity, Vector};
 use crate::material::Material;
 use crate::math::{Intersectable, Ray};
 
-#[derive(Copy, Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "lowercase")]
 pub enum Entity {
     /// A plane entity.
@@ -12,6 +12,9 @@ pub enum Entity {
 
     /// A spherical entity.
     Sphere(Sphere),
+
+    /// A mesh entity.
+    Mesh(Mesh),
 }
 
 impl Entity {
@@ -20,6 +23,8 @@ impl Entity {
         match self {
             Entity::Sphere(ref s) => s.material,
             Entity::Plane(ref p) => p.material,
+            // TODO: define material for meshes
+            Entity::Mesh(ref m) => Material::default(),
         }
     }
 }
@@ -29,6 +34,7 @@ impl Intersectable for Entity {
         match self {
             Entity::Sphere(ref s) => s.intersect(ray),
             Entity::Plane(ref p) => p.intersect(ray),
+            Entity::Mesh(ref m) => m.intersect(ray),
         }
     }
 
@@ -36,6 +42,7 @@ impl Intersectable for Entity {
         match self {
             Entity::Sphere(ref s) => s.surface_normal(point),
             Entity::Plane(ref p) => p.surface_normal(point),
+            Entity::Mesh(ref m) => m.surface_normal(point),
         }
     }
 }
@@ -124,6 +131,7 @@ const fn one() -> f64 {
 }
 
 /// Represents a triangle.
+#[derive(Clone, Debug, Deserialize)]
 pub struct Triangle {
     positions: [Vector; 3],
     normals: [Vector; 3],
@@ -137,6 +145,19 @@ impl Triangle {
     }
 }
 
+impl Intersectable for Triangle {
+    fn intersect(&self, ray: &Ray) -> Option<f64> {
+        // TODO: implement this!
+        return None;
+    }
+
+    fn surface_normal(&self, _: Vector) -> Vector {
+        // TODO: implement this!
+        Vector::identity()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize)]
 pub struct Mesh {
     triangles: Vec<Triangle>,
 }
@@ -160,6 +181,7 @@ impl Mesh {
                 )
             })
             .collect();
+
         Self { triangles }
     }
 
@@ -195,5 +217,17 @@ impl Mesh {
                 Mesh::new(positions, normals, mesh.indices)
             })
             .collect())
+    }
+}
+
+impl Intersectable for Mesh {
+    fn intersect(&self, ray: &Ray) -> Option<f64> {
+        // TODO: check intersect with bounding box firs
+        None
+    }
+
+    fn surface_normal(&self, _: Vector) -> Vector {
+        // TODO: implement this!
+        Vector::identity()
     }
 }

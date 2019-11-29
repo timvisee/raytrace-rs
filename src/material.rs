@@ -35,6 +35,16 @@ pub struct Material {
     pub surface: Surface,
 }
 
+impl Default for Material {
+    fn default() -> Self {
+        Material {
+            color: Color::new(1.0, 0.4, 0.0),
+            albedo: 0.5,
+            surface: Surface::default(),
+        }
+    }
+}
+
 /// Surface type for a material.
 #[derive(Copy, Clone, Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "lowercase")]
