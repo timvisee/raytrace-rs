@@ -13,8 +13,8 @@ pub enum Entity {
     /// A spherical entity.
     Sphere(Sphere),
 
-    /// A mesh entity.
-    Mesh(Mesh),
+    /// A model entity.
+    Model(Model),
 }
 
 impl Entity {
@@ -23,8 +23,7 @@ impl Entity {
         match self {
             Entity::Sphere(ref s) => s.material,
             Entity::Plane(ref p) => p.material,
-            // TODO: define material for meshes
-            Entity::Mesh(ref m) => Material::default(),
+            Entity::Model(ref m) => Material::default(),
         }
     }
 }
@@ -34,7 +33,7 @@ impl Intersectable for Entity {
         match self {
             Entity::Sphere(ref s) => s.intersect(ray),
             Entity::Plane(ref p) => p.intersect(ray),
-            Entity::Mesh(ref m) => m.intersect(ray),
+            Entity::Model(ref m) => m.intersect(ray),
         }
     }
 
@@ -42,7 +41,7 @@ impl Intersectable for Entity {
         match self {
             Entity::Sphere(ref s) => s.surface_normal(point),
             Entity::Plane(ref p) => p.surface_normal(point),
-            Entity::Mesh(ref m) => m.surface_normal(point),
+            Entity::Model(ref m) => m.surface_normal(point),
         }
     }
 }
@@ -227,6 +226,30 @@ impl Intersectable for Mesh {
     }
 
     fn surface_normal(&self, _: Vector) -> Vector {
+        // TODO: implement this!
+        Vector::identity()
+    }
+}
+
+/// A model.
+#[derive(Clone, Debug, Deserialize)]
+pub struct Model {
+    // TODO: replace this with mesh loaded from file path
+    pub file: String,
+
+    /// Model material.
+    pub material: Material,
+    // /// Model mesh.
+    // pub mesh: Mesh,
+}
+
+impl Intersectable for Model {
+    fn intersect(&self, ray: &Ray) -> Option<f64> {
+        // TODO: implement this!
+        None
+    }
+
+    fn surface_normal(&self, point: Vector) -> Vector {
         // TODO: implement this!
         Vector::identity()
     }
