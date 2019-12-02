@@ -70,20 +70,20 @@ impl Camera {
 /// The maximum depth/recursion for casted rays.
 ///
 /// Helper function for serde defaults.
-fn default_ray_depth() -> u32 {
+const fn default_ray_depth() -> u32 {
     16
 }
 
 /// The default shadow/reflect/transform bias length.
 ///
 /// Helper function for serde defaults.
-fn default_bias() -> f64 {
+const fn default_bias() -> f64 {
     1e-13
 }
 
 /// The default FOV for the camera.
 ///
 /// Helper function for serde defaults.
-fn default_fov() -> f64 {
+const fn default_fov() -> f64 {
     90.0
 }

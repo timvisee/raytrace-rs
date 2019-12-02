@@ -242,7 +242,11 @@ impl Mesh {
     }
 
     /// Load a mesh from an .obj file at the given path.
-    pub fn load_obj<'a, P: AsRef<Path>>(path: P, offset: Vector) -> Result<Vec<Mesh>, String> {
+    pub fn load_obj<'a, P: AsRef<Path>>(
+        path: P,
+        offset: Vector,
+        scale: f64,
+    ) -> Result<Vec<Mesh>, String> {
         // Load the obj file
         let models = match tobj::load_obj(path.as_ref()) {
             Ok((models, _)) => models,
@@ -259,7 +263,7 @@ impl Mesh {
                 let positions = mesh
                     .positions
                     .chunks(3)
-                    .map(|p| Vector(p[0] as f64, p[1] as f64, p[2] as f64) + offset)
+                    .map(|p| Vector(p[0] as f64, p[1] as f64, p[2] as f64) * scale + offset)
                     .collect();
                 let normals = mesh
                     .normals
@@ -296,6 +300,10 @@ pub struct Model {
     #[serde(default = "Vector::identity")]
     pub position: Vector,
 
+    /// The default scale.
+    #[serde(default = "one")]
+    pub scale: f64,
+
     /// Model mesh.
     #[serde(default)]
     pub meshes: Vec<Mesh>,
@@ -311,7 +319,7 @@ impl Model {
         let mut path = workdir.as_ref().to_path_buf();
         path.push(&self.path);
 
-        match Mesh::load_obj(&path, self.position) {
+        match Mesh::load_obj(&path, self.position, self.scale) {
             Ok(meshes) => self.meshes = meshes,
             Err(err) => {
                 eprintln!("Failed to load model, ignoring: {}", err);

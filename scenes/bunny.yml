@@ -14,7 +14,8 @@ camera:
 entities:
   - type: model
     path: ./models/bunny.obj
-    position: [0, 0, -1.0]
+    position: [0, -4, -10]
+    scale: 50
     material:
       color: [1, 0.4, 0]
       albedo: 0.5
