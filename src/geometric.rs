@@ -402,18 +402,6 @@ impl Bounds {
             mem::swap(&mut tzmin, &mut tzmax);
         }
 
-        if (tmin > tzmax) || (tzmin > tmax) {
-            return false;
-        }
-
-        if tzmin > tmin {
-            tmin = tzmin;
-        }
-
-        if tzmax < tmax {
-            tmax = tzmax;
-        }
-
-        true
+        (tmin <= tzmax) && (tzmin <= tmax)
     }
 }
