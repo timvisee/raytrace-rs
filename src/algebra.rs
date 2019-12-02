@@ -1,3 +1,4 @@
+use std::f64::EPSILON;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
 type Unit = f64;
@@ -21,6 +22,16 @@ impl Vector {
         self.0 * other.0 + self.1 * other.1 + self.2 * other.2
     }
 
+    /// Cross product.
+    #[inline]
+    pub fn cross(self, other: Self) -> Self {
+        Self(
+            self.1 * other.2 - self.2 * other.1,
+            self.2 * other.0 - self.0 * other.2,
+            self.0 * other.1 - self.1 * other.0,
+        )
+    }
+
     /// Magnitude or length.
     #[inline]
     pub fn magnitude(self) -> Unit {
@@ -30,7 +41,27 @@ impl Vector {
     /// Squared magnitude or length.
     #[inline]
     pub fn magnitude_squared(self) -> Unit {
-        self.0.powi(2) + self.1.powi(2) + self.2.powi(2)
+        self.0 * self.0 + self.1 * self.1 + self.2 * self.2
+    }
+
+    /// Get a vector with the minimum for each component.
+    #[inline]
+    pub fn min_components(self, other: Self) -> Self {
+        Vector(
+            self.0.min(other.0),
+            self.1.min(other.1),
+            self.2.min(other.2),
+        )
+    }
+
+    /// Get a vector with the maximum, for each component.
+    #[inline]
+    pub fn max_components(self, other: Self) -> Self {
+        Vector(
+            self.0.max(other.0),
+            self.1.max(other.1),
+            self.2.max(other.2),
+        )
     }
 }
 
@@ -86,10 +117,10 @@ impl Div<Unit> for Vector {
     type Output = Self;
 
     fn div(self, rhs: Unit) -> Self::Output {
-        if rhs != 0.0 {
-            Vector(self.0 / rhs, self.1 / rhs, self.2 / rhs)
-        } else {
+        if rhs < EPSILON {
             Vector::identity()
+        } else {
+            Vector(self.0 / rhs, self.1 / rhs, self.2 / rhs)
         }
     }
 }
@@ -105,5 +136,73 @@ pub trait Identity {
 impl Identity for Vector {
     fn identity() -> Self {
         Vector(0.0, 0.0, 0.0)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_dot() {
+        assert_unit_equal(Vector(0.0, 0.0, 0.0).dot(Vector(0.0, 0.0, 0.0)), 0.0);
+        assert_unit_equal(Vector(1.0, 1.0, 1.0).dot(Vector(1.0, 1.0, 1.0)), 3.0);
+        assert_unit_equal(Vector(1.0, 2.0, 3.0).dot(Vector(3.0, 4.0, 5.0)), 26.0);
+        assert_unit_equal(Vector(1.0, 2.0, 3.0).dot(Vector(-1.0, -2.0, -3.0)), -14.0);
+        assert_unit_equal(
+            Vector(2.0, 9.5, 0.0).dot(Vector(14.2, 12.0, 36.0)),
+            712.0 / 5.0,
+        );
+    }
+
+    #[test]
+    fn test_cross() {
+        assert_vector_equal(
+            Vector(0.0, 0.0, 0.0).cross(Vector(0.0, 0.0, 0.0)),
+            Vector(0.0, 0.0, 0.0),
+        );
+        assert_vector_equal(
+            Vector(1.0, 1.0, 1.0).cross(Vector(1.0, 1.0, 1.0)),
+            Vector(0.0, 0.0, 0.0),
+        );
+        assert_vector_equal(
+            Vector(1.0, 2.0, 3.0).cross(Vector(3.0, 4.0, 5.0)),
+            Vector(-2.0, 4.0, -2.0),
+        );
+        assert_vector_equal(
+            Vector(1.0, 2.0, 3.0).cross(Vector(-1.0, -2.0, -3.0)),
+            Vector(0.0, 0.0, 0.0),
+        );
+        assert_vector_equal(
+            Vector(2.0, 9.5, 0.0).cross(Vector(14.2, 12.0, 36.0)),
+            Vector(342.0, -72.0, -110.9),
+        );
+    }
+
+    #[test]
+    fn test_div_zero() {
+        assert_vector_equal(Vector(1.0, 1.0, 1.0) / 0.0, Vector::identity());
+    }
+
+    /// Check whether units are almost equal, taking the epsilon into account.
+    fn assert_unit_equal(a: Unit, b: Unit) {
+        assert!(
+            (a - b).abs() < EPSILON,
+            "floats {} and {} are not almost equal",
+            a,
+            b
+        );
+    }
+
+    /// Check whether units are almost equal, taking the epsilon into account.
+    fn assert_vector_equal(a: Vector, b: Vector) {
+        assert!(
+            (a.0 - b.0).abs() < EPSILON
+                && (a.1 - b.1).abs() < EPSILON
+                && (a.2 - b.2).abs() < EPSILON,
+            "vectors {:?} and {:?} are not almost equal",
+            a,
+            b
+        );
     }
 }

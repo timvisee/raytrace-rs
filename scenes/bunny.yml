@@ -1,0 +1,58 @@
+---
+
+# Scene configuration
+bias: 1e-13
+depth: 16
+
+# Camera configuration
+camera:
+  width: 1920
+  height: 1080
+  fov: 90
+
+# Scene entities
+entities:
+  - type: model
+    path: ./models/bunny.obj
+    position: [0, -4, -7]
+    scale: 50
+    material:
+      color: [1, 0.4, 0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: plane
+    center: [0, -2.5, 0]
+    normal: [0, -1, 0]
+    material:
+      color: [0.2, 0.2, 0.2]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: plane
+    center: [0, 0, -20]
+    normal: [0, 0, -1]
+    material:
+      color: [0.1, 0.5, 0.6]
+      albedo: 0.5
+      surface:
+        type: diffuse
+
+# Scene lights
+lights:
+  - type: directional
+    direction: [-0.4, -1, -0.3]
+    color: [1, 1, 1]
+    intensity: 10
+  - type: directional
+    direction: [0.5, -1, -0.3]
+    color: [1, 0, 1]
+    intensity: 10
+  - type: spherical
+    position: [-1, -1.5, -1]
+    color: [0, 1, 1]
+    intensity: 300
+  - type: spherical
+    position: [2.5, 0.5, -1]
+    color: [1, 0.5, 0]
+    intensity: 1000

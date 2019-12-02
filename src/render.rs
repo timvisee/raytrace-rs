@@ -1,6 +1,12 @@
 use std::f32::consts::PI;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Arc;
+use std::sync::Mutex;
+use std::thread;
+use std::time::Duration;
 
 use image::{DynamicImage, GenericImage, Rgba};
+use pbr::ProgressBar;
 use rayon::prelude::*;
 
 use crate::algebra::Vector;
@@ -13,7 +19,7 @@ use crate::scene::Scene;
 /// Render the given scene.
 ///
 /// This renders the given scene to a newly created dynamic image.
-pub fn render(scene: &Scene) -> DynamicImage {
+pub fn render(scene: &Scene, show_progress: bool) -> DynamicImage {
     let camera = scene.camera;
 
     // Warn if there are no lights
@@ -21,15 +27,52 @@ pub fn render(scene: &Scene) -> DynamicImage {
         eprintln!("Warning: no lights in scene, you won't be able to see anything");
     }
 
+    // Set up a progress bar if we should show progress
+    let count = camera.pixels() as u64;
+    let mut pb = None;
+    let mut progress = None;
+    if show_progress {
+        let thread_progress = Arc::new(AtomicU64::new(0));
+        let thread_pb = Arc::new(Mutex::new(ProgressBar::new(camera.pixels() as u64)));
+        pb = Some(thread_pb.clone());
+        progress = Some(thread_progress.clone());
+        thread::spawn(move || loop {
+            // Get the current progress value, update progress bar
+            let value = thread_progress.load(Ordering::Relaxed);
+            if let Ok(mut pb) = thread_pb.lock() {
+                pb.set(value);
+            }
+
+            // Stop when done
+            if value >= count {
+                break;
+            }
+
+            thread::sleep(Duration::from_millis(250));
+        });
+    }
+
     // Create a pixelmap of pixels
-    let pixels: Vec<Rgba<u8>> = (0..camera.pixels())
+    let pixels: Vec<Rgba<u8>> = (0..count as u32)
         .into_par_iter()
         .map(|i| (i / scene.camera.height, i % scene.camera.height))
         .map(|(x, y)| {
             let ray = Ray::new_prime(x, y, scene);
-            observe_ray(scene, &ray, 0).to_rgba()
+            let color = observe_ray(scene, &ray, 0).to_rgba();
+
+            // Update the progress
+            if let Some(progress) = progress.as_ref() {
+                progress.fetch_add(1, Ordering::Relaxed);
+            }
+
+            color
         })
         .collect();
+
+    // Finish the progress bar
+    if let Some(pb) = pb {
+        pb.lock().unwrap().finish();
+    }
 
     // Build the dynamic image from the pixels
     // TODO: find more efficient method, render directly to image buffer
@@ -82,7 +125,7 @@ fn observe_intersection(
     depth: u32,
 ) -> Color {
     let hit = ray.origin + (ray.direction * intersection.distance);
-    let normal = intersection.entity.surface_normal(hit);
+    let normal = intersection.normal;
 
     let material = intersection.entity.material();
     match material.surface {

@@ -10,6 +10,7 @@ This program loads a scene from a YAML file, and renders it to an image file.
 
 ![Screenshot balls scene](screenshots/balls.png)
 ![Screenshot glass scene](screenshots/glass.png)
+![Screenshot monkeys scene](screenshots/monkeys.png)
 
 I've heavily used [Scratchapixel][scratchapixel] as resource for a ray tracer
 implementation.

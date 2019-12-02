@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::geometric::Entity;
 use crate::light::Light;
 use crate::math::{Intersectable, Intersection, Ray};
@@ -29,12 +31,18 @@ impl Scene {
         self.entities
             .iter()
             .filter_map(|s| {
-                s.intersect(ray).map(|d| Intersection {
+                s.intersect(ray).map(|(d, n)| Intersection {
                     distance: d,
+                    normal: n,
                     entity: s,
                 })
             })
             .min_by(|i1, i2| i1.distance.partial_cmp(&i2.distance).unwrap())
+    }
+
+    /// Load external resources.
+    pub fn load<P: AsRef<Path> + Copy>(&mut self, workdir: P) {
+        self.entities.iter_mut().for_each(|e| e.load(workdir))
     }
 }
 
@@ -62,20 +70,20 @@ impl Camera {
 /// The maximum depth/recursion for casted rays.
 ///
 /// Helper function for serde defaults.
-fn default_ray_depth() -> u32 {
+const fn default_ray_depth() -> u32 {
     16
 }
 
 /// The default shadow/reflect/transform bias length.
 ///
 /// Helper function for serde defaults.
-fn default_bias() -> f64 {
+const fn default_bias() -> f64 {
     1e-13
 }
 
 /// The default FOV for the camera.
 ///
 /// Helper function for serde defaults.
-fn default_fov() -> f64 {
+const fn default_fov() -> f64 {
     90.0
 }
