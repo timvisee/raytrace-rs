@@ -15,11 +15,18 @@ entities:
   - type: model
     path: ./models/cube.obj
     position: [0, 0, -3]
+    # material:
+    #   color: [1, 0.4, 0]
+    #   albedo: 0.5
+    #   surface:
+    #     type: diffuse
     material:
-      color: [1, 0.4, 0]
-      albedo: 0.5
+      color: [1, 1, 1]
+      albedo: 0.18
       surface:
-        type: diffuse
+        type: transparent
+        index: 1.5
+        transparency: 0.95
   - type: plane
     center: [0, -2.5, 0]
     normal: [0, -1, 0]
@@ -33,6 +40,79 @@ entities:
     normal: [0, 0, -1]
     material:
       color: [0.1, 0.5, 0.6]
+      albedo: 0.5
+      surface:
+        type: diffuse
+
+  - type: sphere
+    center: [2, 2, -8]
+    radius: 1
+    material:
+      color: [1, 0.4, 0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [2, 0, -8]
+    radius: 1
+    material:
+      color: [1, 0.4, 0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [2, -2, -8]
+    radius: 1
+    material:
+      color: [1, 0.4, 0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [0, 2, -8]
+    radius: 1
+    material:
+      color: [1, 0.4, 0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [0, 0, -8]
+    radius: 1
+    material:
+      color: [1, 0.4, 0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [0, -2, -8]
+    radius: 1
+    material:
+      color: [1, 0.4, 0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [-2, 2, -8]
+    radius: 1
+    material:
+      color: [1, 0.4, 0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [-2, 0, -8]
+    radius: 1
+    material:
+      color: [1, 0.4, 0]
+      albedo: 0.5
+      surface:
+        type: diffuse
+  - type: sphere
+    center: [-2, -2, -8]
+    radius: 1
+    material:
+      color: [1, 0.4, 0]
       albedo: 0.5
       surface:
         type: diffuse
