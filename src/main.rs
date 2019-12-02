@@ -61,6 +61,13 @@ fn main() {
                 .help("Open rendered scene image")
                 .takes_value(false),
         )
+        .arg(
+            Arg::with_name("no-progress")
+                .long("no-progress")
+                .short("P")
+                .help("Do not show progress bar")
+                .takes_value(false),
+        )
         .get_matches();
 
     // Validate scene file
@@ -86,10 +93,11 @@ fn main() {
     // Check whether to open and watch
     let mut open = matches.is_present("open");
     let watch = matches.is_present("watch");
+    let show_progress = !matches.is_present("no-progress");
 
     loop {
         // Render the scene
-        render(open, &scene_path, &output_path);
+        render(open, &scene_path, &output_path, show_progress);
 
         // Do not watch, render a single time and quit
         if !watch {
@@ -109,7 +117,7 @@ fn main() {
 ///
 /// This renders the scene at the given `scene_path`, and outputs the render result to
 /// `output_path`.
-fn render(open: bool, scene_path: &Path, output_path: &Path) {
+fn render(open: bool, scene_path: &Path, output_path: &Path, show_progress: bool) {
     // Load scene from file
     eprintln!("Loading scene file...");
     let scene_file = match File::open(scene_path) {
@@ -138,7 +146,7 @@ fn render(open: bool, scene_path: &Path, output_path: &Path) {
     // Render scene to an image, save it to a file
     eprintln!("Rendering scene on {} CPU cores...", num_cpus::get());
     let timer = Timer::new();
-    let render = render::render(&scene, true);
+    let render = render::render(&scene, show_progress);
     match render.save(output_path) {
         Ok(_) => {}
         Err(err) => {
