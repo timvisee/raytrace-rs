@@ -1,3 +1,4 @@
+use std::f64::EPSILON;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
 type Unit = f64;
@@ -96,10 +97,10 @@ impl Div<Unit> for Vector {
     type Output = Self;
 
     fn div(self, rhs: Unit) -> Self::Output {
-        if rhs != 0.0 {
-            Vector(self.0 / rhs, self.1 / rhs, self.2 / rhs)
-        } else {
+        if rhs < EPSILON {
             Vector::identity()
+        } else {
+            Vector(self.0 / rhs, self.1 / rhs, self.2 / rhs)
         }
     }
 }
@@ -121,8 +122,6 @@ impl Identity for Vector {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    use std::f64::EPSILON;
 
     #[test]
     fn test_dot() {
@@ -158,6 +157,11 @@ mod tests {
             Vector(2.0, 9.5, 0.0).cross(Vector(14.2, 12.0, 36.0)),
             Vector(342.0, -72.0, -110.9),
         );
+    }
+
+    #[test]
+    fn test_div_zero() {
+        assert_vector_equal(Vector(1.0, 1.0, 1.0) / 0.0, Vector::identity());
     }
 
     /// Check whether units are almost equal, taking the epsilon into account.
