@@ -1,3 +1,4 @@
+use std::mem;
 use std::path::Path;
 
 use crate::algebra::{Identity, Vector};
@@ -212,7 +213,11 @@ impl Intersectable for Triangle {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct Mesh {
+    /// The mesh triangles.
     triangles: Vec<Triangle>,
+
+    /// The bounds of this mesh in world space.
+    bounds: Bounds,
 }
 
 impl Mesh {
@@ -238,7 +243,18 @@ impl Mesh {
             })
             .collect();
 
-        Self { triangles }
+        // Find the bounds
+        let mut min = positions[0];
+        let mut max = positions[0];
+        positions.into_iter().for_each(|p| {
+            min = min.min_components(p);
+            max = max.max_components(p);
+        });
+
+        Self {
+            triangles,
+            bounds: Bounds { min, max },
+        }
     }
 
     /// Load a mesh from an .obj file at the given path.
@@ -283,6 +299,12 @@ impl Mesh {
 
 impl Intersectable for Mesh {
     fn intersect(&self, ray: &Ray) -> Option<(f64, Vector)> {
+        // The ray must intersect the mesh bounding box
+        if !self.bounds.intersects(ray) {
+            return None;
+        }
+
+        // Intersect with mesh triangles
         self.triangles
             .iter()
             .filter_map(|t| t.intersect(ray))
@@ -334,5 +356,64 @@ impl Intersectable for Model {
             .iter()
             .filter_map(|t| t.intersect(ray))
             .min_by(|i1, i2| i1.0.partial_cmp(&i2.0).unwrap())
+    }
+}
+
+/// Defines a bounding box.
+#[derive(Clone, Debug, Deserialize)]
+struct Bounds {
+    pub min: Vector,
+    pub max: Vector,
+}
+
+impl Bounds {
+    /// Check whether the given ray intersects with this bounding box.
+    pub fn intersects(&self, ray: &Ray) -> bool {
+        let mut tmin = (self.min.0 - ray.origin.0) / ray.direction.0;
+        let mut tmax = (self.max.0 - ray.origin.0) / ray.direction.0;
+
+        if tmin > tmax {
+            mem::swap(&mut tmin, &mut tmax);
+        }
+
+        let mut tymin = (self.min.1 - ray.origin.1) / ray.direction.1;
+        let mut tymax = (self.max.1 - ray.origin.1) / ray.direction.1;
+
+        if tymin > tymax {
+            mem::swap(&mut tymin, &mut tymax);
+        }
+
+        if (tmin > tymax) || (tymin > tmax) {
+            return false;
+        }
+
+        if tymin > tmin {
+            tmin = tymin;
+        }
+
+        if tymax < tmax {
+            tmax = tymax;
+        }
+
+        let mut tzmin = (self.min.2 - ray.origin.2) / ray.direction.2;
+        let mut tzmax = (self.max.2 - ray.origin.2) / ray.direction.2;
+
+        if tzmin > tzmax {
+            mem::swap(&mut tzmin, &mut tzmax);
+        }
+
+        if (tmin > tzmax) || (tzmin > tmax) {
+            return false;
+        }
+
+        if tzmin > tmin {
+            tmin = tzmin;
+        }
+
+        if tzmax < tmax {
+            tmax = tzmax;
+        }
+
+        true
     }
 }

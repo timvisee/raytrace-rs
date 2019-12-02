@@ -43,6 +43,26 @@ impl Vector {
     pub fn magnitude_squared(self) -> Unit {
         self.0 * self.0 + self.1 * self.1 + self.2 * self.2
     }
+
+    /// Get a vector with the minimum for each component.
+    #[inline]
+    pub fn min_components(self, other: Self) -> Self {
+        Vector(
+            self.0.min(other.0),
+            self.1.min(other.1),
+            self.2.min(other.2),
+        )
+    }
+
+    /// Get a vector with the maximum, for each component.
+    #[inline]
+    pub fn max_components(self, other: Self) -> Self {
+        Vector(
+            self.0.max(other.0),
+            self.1.max(other.1),
+            self.2.max(other.2),
+        )
+    }
 }
 
 impl Add for Vector {
