@@ -289,7 +289,7 @@ impl Intersectable for Mesh {
 /// A model.
 #[derive(Clone, Debug, Deserialize)]
 pub struct Model {
-    // TODO: replace this with mesh loaded from file path
+    /// Path to the model file to load.
     pub path: String,
 
     /// Position of the model in world space.
@@ -314,7 +314,7 @@ impl Model {
         match Mesh::load_obj(&path, self.position) {
             Ok(meshes) => self.meshes = meshes,
             Err(err) => {
-                eprintln!("Failed to load model: {}", err);
+                eprintln!("Failed to load model, ignoring: {}", err);
             }
         }
     }
