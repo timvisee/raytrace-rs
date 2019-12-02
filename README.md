@@ -7,10 +7,26 @@
 A [Whitted][wikipedia] style ray tracer written in Rust.
 
 This program loads a scene from a YAML file, and renders it to an image file.
+It is currently quite limited but supports:  
+- Entities:
+  - Spheres (position, radius)
+  - Planes (position, direction)
+  - Models (mesh from `.obj` file, offset, scale)
+- Lights:
+  - Point light
+  - Directional light
+- Materials:
+  - Color
+  - Albedo
+  - Surface type:
+    - Diffuse
+    - Specular
+    - Transparent
 
 ![Screenshot balls scene](screenshots/balls.png)
 ![Screenshot glass scene](screenshots/glass.png)
 ![Screenshot dragon scene](screenshots/dragon.png)
+![Screenshot models scene](screenshots/models.png)
 ![Screenshot monkeys scene](screenshots/monkeys.png)
 
 I've heavily used [Scratchapixel][scratchapixel] as resource for a ray tracer
