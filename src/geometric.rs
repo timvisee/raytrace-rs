@@ -1,9 +1,11 @@
-use std::f64::EPSILON;
 use std::path::Path;
 
 use crate::algebra::{Identity, Vector};
 use crate::material::Material;
 use crate::math::{Intersectable, Ray};
+
+// TODO: use bias from scene
+const EPSILON: f64 = 0.000_000_01;
 
 #[derive(Clone, Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "lowercase")]
@@ -24,7 +26,7 @@ impl Entity {
         match self {
             Entity::Sphere(ref s) => s.material,
             Entity::Plane(ref p) => p.material,
-            Entity::Model(ref _m) => Material::default(),
+            Entity::Model(ref m) => m.material,
         }
     }
 
@@ -152,45 +154,58 @@ impl Triangle {
     pub fn new(positions: [Vector; 3], normals: Option<[Vector; 3]>) -> Self {
         Self { positions, normals }
     }
+
+    /// Get the center of the triangle in world space.
+    pub fn center(&self) -> Vector {
+        (self.positions[0] + self.positions[1] + self.positions[2]) / 3.0
+    }
 }
 
 impl Intersectable for Triangle {
     fn intersect(&self, ray: &Ray) -> Option<f64> {
-        let v0: Vector = self.positions[0];
-        let v1: Vector = self.positions[1];
-        let v2: Vector = self.positions[2];
-
-        let v0v1 = v1 - v0;
-        let v0v2 = v2 - v0;
-        let pvec = ray.direction.cross(v0v2);
-        let det = v0v1.dot(pvec);
-
-        // Ray does not intersect with parallel triangle
-        if det.abs() < EPSILON {
-            return None;
+        let v0 = self.positions[0];
+        let v1 = self.positions[1];
+        let v2 = self.positions[2];
+        let edge1 = v1 - v0;
+        let edge2 = v2 - v0;
+        let h = ray.direction.cross(edge2);
+        let a = edge1.dot(h);
+        if a > -EPSILON && a < EPSILON {
+            return None; // This ray is parallel to this triangle.
         }
-
-        let inv_det = 1.0 / det;
-
-        let tvec = ray.origin - v0;
-        let u = tvec.dot(pvec) * inv_det;
+        let f = 1.0 / a;
+        let s = ray.origin - v0;
+        let u = f * s.dot(h);
         if u < 0.0 || u > 1.0 {
             return None;
         }
-
-        let qvec = tvec.cross(v0v1);
-        let v = ray.direction.dot(qvec) * inv_det;
+        let q = s.cross(edge1);
+        let v = f * ray.direction.dot(q);
         if v < 0.0 || u + v > 1.0 {
             return None;
         }
-
-        // Calculate hit distance
-        Some(v0v2.dot(qvec) * inv_det)
+        // At this stage we can compute t to find out where the intersection point is on the line.
+        let t = f * edge2.dot(q);
+        // ray intersection
+        if t > EPSILON && t < 1.0 / EPSILON {
+            // outIntersectionPoint = rayOrigin + rayVector * t;
+            return Some(t);
+        } else {
+            // This means that there is a line intersection but not a ray intersection.
+            return None;
+        }
     }
 
-    fn surface_normal(&self, _: Vector) -> Vector {
-        // TODO: implement this!
-        Vector::identity()
+    fn surface_normal(&self, point: Vector) -> Vector {
+        match &self.normals {
+            Some(normals) => (normals[0] + normals[1] + normals[2] / 3.0).normalize(),
+            None => {
+                let v0: Vector = self.positions[0];
+                let v1: Vector = self.positions[1];
+                let v2: Vector = self.positions[2];
+                (v1 - v0).cross(v2 - v0).normalize()
+            }
+        }
     }
 }
 
@@ -269,9 +284,20 @@ impl Intersectable for Mesh {
             .min_by(|i1, i2| i1.partial_cmp(&i2).unwrap())
     }
 
-    fn surface_normal(&self, _: Vector) -> Vector {
-        // TODO: implement this!
-        Vector::identity()
+    fn surface_normal(&self, point: Vector) -> Vector {
+        // Find closest triangle
+        let triangle = self
+            .triangles
+            .iter()
+            .min_by(|t1, t2| {
+                (t1.center() - point)
+                    .magnitude_squared()
+                    .partial_cmp(&(t2.center() - point).magnitude_squared())
+                    .unwrap()
+            })
+            .unwrap();
+
+        triangle.surface_normal(point)
     }
 }
 
@@ -314,7 +340,8 @@ impl Intersectable for Model {
     }
 
     fn surface_normal(&self, point: Vector) -> Vector {
-        // TODO: implement this!
-        Vector::identity()
+        // // TODO: implement this!
+        // // println!("check nearest mesh");
+        self.meshes[0].surface_normal(point)
     }
 }
