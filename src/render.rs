@@ -82,7 +82,7 @@ fn observe_intersection(
     depth: u32,
 ) -> Color {
     let hit = ray.origin + (ray.direction * intersection.distance);
-    let normal = intersection.entity.surface_normal(hit);
+    let normal = intersection.normal;
 
     let material = intersection.entity.material();
     match material.surface {

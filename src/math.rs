@@ -127,6 +127,9 @@ pub struct Intersection<'a> {
     /// Distance to the intersection point at `entity` from the ray origin.
     pub distance: f64,
 
+    /// The hit point normal.
+    pub normal: Vector,
+
     /// The entity that was intersected.
     pub entity: &'a Entity,
 }
@@ -135,10 +138,7 @@ pub trait Intersectable {
     /// Check for ray intersection with this entity.
     ///
     /// This check whether the given `ray` intersects with this entity, and if there's an
-    /// intersection the distance to the hit point from the ray origin is returned.
-    // TODO: use squared distance for better performance.
-    fn intersect(&self, ray: &Ray) -> Option<f64>;
-
-    /// Get the surface normal at the given surface point.
-    fn surface_normal(&self, point: Vector) -> Vector;
+    /// intersection the distance to the hit point from the ray origin along with the hit point
+    /// surface normal is returned.
+    fn intersect(&self, ray: &Ray) -> Option<(f64, Vector)>;
 }

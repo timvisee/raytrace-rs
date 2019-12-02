@@ -31,8 +31,9 @@ impl Scene {
         self.entities
             .iter()
             .filter_map(|s| {
-                s.intersect(ray).map(|d| Intersection {
+                s.intersect(ray).map(|(d, n)| Intersection {
                     distance: d,
+                    normal: n,
                     entity: s,
                 })
             })

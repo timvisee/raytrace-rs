@@ -4,8 +4,8 @@ use crate::algebra::{Identity, Vector};
 use crate::material::Material;
 use crate::math::{Intersectable, Ray};
 
-// TODO: use bias from scene
-const EPSILON: f64 = 0.000_000_01;
+// TODO: use bias from scene?
+const EPSILON: f64 = 1e-6;
 
 #[derive(Clone, Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "lowercase")]
@@ -41,19 +41,11 @@ impl Entity {
 }
 
 impl Intersectable for Entity {
-    fn intersect(&self, ray: &Ray) -> Option<f64> {
+    fn intersect(&self, ray: &Ray) -> Option<(f64, Vector)> {
         match self {
             Entity::Sphere(ref s) => s.intersect(ray),
             Entity::Plane(ref p) => p.intersect(ray),
             Entity::Model(ref m) => m.intersect(ray),
-        }
-    }
-
-    fn surface_normal(&self, point: Vector) -> Vector {
-        match self {
-            Entity::Sphere(ref s) => s.surface_normal(point),
-            Entity::Plane(ref p) => p.surface_normal(point),
-            Entity::Model(ref m) => m.surface_normal(point),
         }
     }
 }
@@ -71,11 +63,13 @@ pub struct Plane {
     pub material: Material,
 }
 
-impl Intersectable for Plane {
-    fn intersect(&self, ray: &Ray) -> Option<f64> {
+impl Plane {
+    /// Get intersection distance form ray origin.
+    fn intersect_distance(&self, ray: &Ray) -> Option<f64> {
         let normal = self.normal;
         let denom = normal.dot(ray.direction);
-        if denom > 1e-6 {
+        // TODO: use scene bias here?
+        if denom > EPSILON {
             let v = self.center - ray.origin;
             let distance = v.dot(normal) / denom;
             if distance >= 0.0 {
@@ -84,9 +78,11 @@ impl Intersectable for Plane {
         }
         None
     }
+}
 
-    fn surface_normal(&self, _: Vector) -> Vector {
-        -self.normal
+impl Intersectable for Plane {
+    fn intersect(&self, ray: &Ray) -> Option<(f64, Vector)> {
+        self.intersect_distance(ray).map(|d| (d, -self.normal))
     }
 }
 
@@ -104,8 +100,9 @@ pub struct Sphere {
     pub material: Material,
 }
 
-impl Intersectable for Sphere {
-    fn intersect(&self, ray: &Ray) -> Option<f64> {
+impl Sphere {
+    /// Get intersection distance form ray origin.
+    fn intersect_distance(&self, ray: &Ray) -> Option<f64> {
         let l: Vector = self.center - ray.origin;
         let adj = l.dot(ray.direction);
         let d2 = l.dot(l) - (adj * adj);
@@ -128,9 +125,14 @@ impl Intersectable for Sphere {
             Some(distance)
         }
     }
+}
 
-    fn surface_normal(&self, point: Vector) -> Vector {
-        (point - self.center).normalize()
+impl Intersectable for Sphere {
+    fn intersect(&self, ray: &Ray) -> Option<(f64, Vector)> {
+        self.intersect_distance(ray).map(|d| {
+            let point = ray.origin + ray.direction * d;
+            (d, (point - self.center).normalize())
+        })
     }
 }
 
@@ -154,15 +156,11 @@ impl Triangle {
     pub fn new(positions: [Vector; 3], normals: Option<[Vector; 3]>) -> Self {
         Self { positions, normals }
     }
-
-    /// Get the center of the triangle in world space.
-    pub fn center(&self) -> Vector {
-        (self.positions[0] + self.positions[1] + self.positions[2]) / 3.0
-    }
 }
 
 impl Intersectable for Triangle {
-    fn intersect(&self, ray: &Ray) -> Option<f64> {
+    fn intersect(&self, ray: &Ray) -> Option<(f64, Vector)> {
+        // Intersection check with Möller–Trumbore algorithm
         let v0 = self.positions[0];
         let v1 = self.positions[1];
         let v2 = self.positions[2];
@@ -170,8 +168,10 @@ impl Intersectable for Triangle {
         let edge2 = v2 - v0;
         let h = ray.direction.cross(edge2);
         let a = edge1.dot(h);
-        if a > -EPSILON && a < EPSILON {
-            return None; // This ray is parallel to this triangle.
+
+        // No intersection if ray is parallel to triangle face
+        if a.abs() < EPSILON {
+            return None;
         }
         let f = 1.0 / a;
         let s = ray.origin - v0;
@@ -184,28 +184,29 @@ impl Intersectable for Triangle {
         if v < 0.0 || u + v > 1.0 {
             return None;
         }
-        // At this stage we can compute t to find out where the intersection point is on the line.
         let t = f * edge2.dot(q);
-        // ray intersection
-        if t > EPSILON && t < 1.0 / EPSILON {
-            // outIntersectionPoint = rayOrigin + rayVector * t;
-            return Some(t);
-        } else {
-            // This means that there is a line intersection but not a ray intersection.
+
+        // Ray intersection
+        // This means that there is a line intersection but not a ray intersection.
+        if t <= EPSILON || t >= 1.0 / EPSILON {
             return None;
         }
-    }
 
-    fn surface_normal(&self, point: Vector) -> Vector {
-        match &self.normals {
-            Some(normals) => (normals[0] + normals[1] + normals[2] / 3.0).normalize(),
+        // Calcualte the normal
+        let normal = match &self.normals {
+            // Interpolate vertex normals for smooth Gouraud normal
+            Some(normals) => normals[0] * (1.0 - u - v) + normals[1] * u + normals[2] * v,
+
+            // Calculate face normal
             None => {
                 let v0: Vector = self.positions[0];
                 let v1: Vector = self.positions[1];
                 let v2: Vector = self.positions[2];
                 (v1 - v0).cross(v2 - v0).normalize()
             }
-        }
+        };
+
+        Some((t, normal))
     }
 }
 
@@ -277,27 +278,11 @@ impl Mesh {
 }
 
 impl Intersectable for Mesh {
-    fn intersect(&self, ray: &Ray) -> Option<f64> {
+    fn intersect(&self, ray: &Ray) -> Option<(f64, Vector)> {
         self.triangles
             .iter()
             .filter_map(|t| t.intersect(ray))
-            .min_by(|i1, i2| i1.partial_cmp(&i2).unwrap())
-    }
-
-    fn surface_normal(&self, point: Vector) -> Vector {
-        // Find closest triangle
-        let triangle = self
-            .triangles
-            .iter()
-            .min_by(|t1, t2| {
-                (t1.center() - point)
-                    .magnitude_squared()
-                    .partial_cmp(&(t2.center() - point).magnitude_squared())
-                    .unwrap()
-            })
-            .unwrap();
-
-        triangle.surface_normal(point)
+            .min_by(|i1, i2| i1.0.partial_cmp(&i2.0).unwrap())
     }
 }
 
@@ -336,16 +321,10 @@ impl Model {
 }
 
 impl Intersectable for Model {
-    fn intersect(&self, ray: &Ray) -> Option<f64> {
+    fn intersect(&self, ray: &Ray) -> Option<(f64, Vector)> {
         self.meshes
             .iter()
             .filter_map(|t| t.intersect(ray))
-            .min_by(|i1, i2| i1.partial_cmp(&i2).unwrap())
-    }
-
-    fn surface_normal(&self, point: Vector) -> Vector {
-        // // TODO: implement this!
-        // // println!("check nearest mesh");
-        self.meshes[0].surface_normal(point)
+            .min_by(|i1, i2| i1.0.partial_cmp(&i2.0).unwrap())
     }
 }
