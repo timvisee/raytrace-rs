@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::geometric::Entity;
 use crate::light::Light;
 use crate::math::{Intersectable, Intersection, Ray};
@@ -38,8 +40,8 @@ impl Scene {
     }
 
     /// Load external resources.
-    pub fn load(&mut self) {
-        self.entities.iter_mut().for_each(|e| e.load())
+    pub fn load<P: AsRef<Path> + Copy>(&mut self, workdir: P) {
+        self.entities.iter_mut().for_each(|e| e.load(workdir))
     }
 }
 

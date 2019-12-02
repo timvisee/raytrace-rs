@@ -133,7 +133,7 @@ fn render(open: bool, scene_path: &Path, output_path: &Path) {
             return;
         }
     };
-    scene.load();
+    scene.load(scene_path.parent().unwrap());
 
     // Render scene to an image, save it to a file
     eprintln!("Rendering scene on {} CPU cores...", num_cpus::get());

@@ -31,11 +31,11 @@ impl Entity {
     }
 
     /// Load any external resources.
-    pub fn load(&mut self) {
+    pub fn load<P: AsRef<Path>>(&mut self, workdir: P) {
         match self {
             Entity::Sphere(_) => {}
             Entity::Plane(_) => {}
-            Entity::Model(ref mut m) => m.load(),
+            Entity::Model(ref mut m) => m.load(workdir),
         }
     }
 }
@@ -321,8 +321,12 @@ pub struct Model {
 
 impl Model {
     /// Load any external resources.
-    pub fn load(&mut self) {
-        match Mesh::load_obj(&self.path, self.position) {
+    pub fn load<P: AsRef<Path>>(&mut self, workdir: P) {
+        // Determine absolute path for relative model paths
+        let mut path = workdir.as_ref().to_path_buf();
+        path.push(&self.path);
+
+        match Mesh::load_obj(&path, self.position) {
             Ok(meshes) => self.meshes = meshes,
             Err(err) => {
                 eprintln!("Failed to load model: {}", err);
